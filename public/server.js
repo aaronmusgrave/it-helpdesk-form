@@ -29,7 +29,7 @@ async function getAccessToken() {
   return resp.data.access_token;
 }
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'static')));
 
 app.post('/api/submit', upload.any(), async (req, res) => {
   try {
