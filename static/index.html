@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>MotoRad IT Help Desk</title>
+  <title>MotoRad Help Desk</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; }
@@ -27,6 +27,10 @@
     select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 38px; }
     input:focus, textarea:focus, select:focus { outline: none; border-color: #1a56db; background: white; }
     textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
+    .type-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .type-btn { padding: 18px 8px; border: 2px solid #e5e7eb; border-radius: 9px; background: white; cursor: pointer; text-align: center; font-size: 14px; font-weight: 600; transition: all 0.2s; color: #374151; }
+    .type-btn.selected { border-color: #1a56db; background: #eff6ff; color: #1a56db; }
+    .type-btn:not(.selected):hover { border-color: #93c5fd; background: #eff6ff; }
     .urgency-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .urgency-btn { padding: 14px 10px; border: 2px solid #e5e7eb; border-radius: 9px; background: white; cursor: pointer; text-align: center; font-size: 14px; font-weight: 500; transition: all 0.2s; }
     .urgency-btn.urgent.selected  { border-color: #dc2626; background: #fef2f2; color: #991b1b; }
@@ -67,7 +71,7 @@
 <body>
 
 <div class="header">
-  <h1>🛠️ IT Help Desk</h1>
+  <h1>🛠️ Help Desk</h1>
   <p>MotoRad — Submit a Support Ticket</p>
 </div>
 
@@ -75,8 +79,25 @@
   <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:25%"></div></div>
   <div class="step-label" id="stepLabel">Step 1 of 4</div>
 
-  <!-- STEP 1 -->
+  <!-- STEP 1: Ticket Type -->
   <div class="card" id="step1">
+    <h2>📋 Ticket Type</h2>
+    <div class="field">
+      <label>What type of ticket are you submitting? <span class="sublabel">*</span></label>
+      <div class="type-grid">
+        <button class="type-btn" onclick="selectTicketType(this,'IT')">💻 IT</button>
+        <button class="type-btn" onclick="selectTicketType(this,'Maintenance')">🔧 Maintenance</button>
+        <button class="type-btn" onclick="selectTicketType(this,'Business Intelligence')">📊 Business Intelligence</button>
+      </div>
+      <div class="error-msg" id="err-tickettype">Please select a ticket type.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goStep(2)">Next →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Contact Info -->
+  <div class="card hidden" id="step2">
     <h2>👤 Contact Information</h2>
     <div class="field">
       <label>Email Address <span class="sublabel">*</span></label>
@@ -99,7 +120,7 @@
     </div>
     <div class="field">
       <label>Office / Plant <span class="sublabel">*</span></label>
-      <select id="officeType">
+      <select id="officeType" onchange="updateDepartments()">
         <option value="">— Select one —</option>
         <option>Office/Remote</option>
         <option>Plant</option>
@@ -109,49 +130,19 @@
     <div class="field">
       <label>USA Department <span class="sublabel">*</span></label>
       <select id="department">
-        <option value="">— Select your department —</option>
-        <option>USA - Conveyance</option>
-        <option>USA - Custom Pack/Unit Pick</option>
-        <option>USA - High Speed Packaging</option>
-        <option>USA - Inventory Control</option>
-        <option>USA - Maintanance</option>
-        <option>USA - Quality</option>
-        <option>USA - Replenishment</option>
-        <option>USA - Retail Shipping</option>
-        <option>USA - Returns</option>
+        <option value="">— Select Office/Plant first —</option>
       </select>
       <div class="error-msg" id="err-dept">Please select your department.</div>
     </div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="goStep(2)">Next →</button>
+      <button class="btn btn-secondary" onclick="goStep(1)">← Back</button>
+      <button class="btn btn-primary"   onclick="goStep(3)">Next →</button>
     </div>
   </div>
 
-  <!-- STEP 2 -->
-  <div class="card hidden" id="step2">
+  <!-- STEP 3: Ticket Details -->
+  <div class="card hidden" id="step3">
     <h2>🔧 Ticket Details</h2>
-    <div class="field">
-      <label>Ticket Category <span class="sublabel">*</span></label>
-      <select id="category">
-        <option value="">— Select a category —</option>
-        <option>IT - Computer Support</option>
-        <option>IT - Employee Barcode</option>
-        <option>IT - Label Printing Support</option>
-        <option>IT - Mobile Device Support</option>
-        <option>IT - Network Cable/Device Support</option>
-        <option>IT - Network Connection Issues (Wired/Wireless)</option>
-        <option>IT - Network Drive/File Permissions</option>
-        <option>IT - Office 365 Email/Office Apps</option>
-        <option>IT - Password Reset/Unlock</option>
-        <option>IT - Printer Support</option>
-        <option>IT - Priority Request/Support</option>
-        <option>IT - Purchase Request Accessory/Computer</option>
-        <option>IT - Remote Desktop Support</option>
-        <option>IT - Shipping Software Support</option>
-        <option>IT - Software Installation / Support</option>
-      </select>
-      <div class="error-msg" id="err-category">Please select a category.</div>
-    </div>
     <div class="field">
       <label>Ticket Urgency <span class="sublabel">*</span></label>
       <div class="urgency-grid">
@@ -161,23 +152,12 @@
         <button class="urgency-btn low"             onclick="selectUrgency(this,'Low')">🟢 Low</button>
       </div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-secondary" onclick="goStep(1)">← Back</button>
-      <button class="btn btn-primary"   onclick="goStep(3)">Next →</button>
-    </div>
-  </div>
-
-  <!-- STEP 3 -->
-  <div class="card hidden" id="step3">
-    <h2>📝 Describe Your Issue</h2>
-    <div class="field">
-      <label>Ticket Subject <span class="sublabel">* — one sentence summary</span></label>
-      <input type="text" id="subject" placeholder="e.g. Scanner won't connect to WiFi" />
-      <div class="error-msg" id="err-subject">Please enter a subject.</div>
-    </div>
-    <div class="field">
-      <label>Please Explain the Issue <span class="sublabel">Include any error messages, when it started, etc.</span></label>
-      <textarea id="description" placeholder="Describe what's happening in as much detail as possible..."></textarea>
+    <div class="field hidden" id="categoryField">
+      <label>Ticket Category <span class="sublabel">*</span></label>
+      <select id="category">
+        <option value="">— Select a category —</option>
+      </select>
+      <div class="error-msg" id="err-category">Please select a category.</div>
     </div>
     <div class="btn-row">
       <button class="btn btn-secondary" onclick="goStep(2)">← Back</button>
@@ -185,9 +165,18 @@
     </div>
   </div>
 
-  <!-- STEP 4 -->
+  <!-- STEP 4: Subject + Description + Photo -->
   <div class="card hidden" id="step4">
-    <h2>📸 Photo &amp; Submit</h2>
+    <h2>📝 Describe &amp; Submit</h2>
+    <div class="field">
+      <label>Ticket Subject <span class="sublabel">* — one sentence summary</span></label>
+      <input type="text" id="subject" placeholder="e.g. Scanner won't connect to WiFi" />
+      <div class="error-msg" id="err-subject">Please enter a subject.</div>
+    </div>
+    <div class="field">
+      <label>Please Explain the Issue <span class="sublabel">Include error messages, when it started, etc.</span></label>
+      <textarea id="description" placeholder="Describe what's happening in as much detail as possible..."></textarea>
+    </div>
     <div class="field">
       <label>Attach a Photo or File <span class="sublabel">Optional</span></label>
       <div class="photo-area" onclick="document.getElementById('photoInput').click()">
@@ -223,20 +212,93 @@
 <script>
   const PROXY_URL = "/api/submit";
 
-  let selectedUrgency = "Normal";
+  let selectedUrgency  = "Normal";
+  let selectedTicketType = "";
   let photoFiles = [];
-  const steps = { 1: 25, 2: 50, 3: 75, 4: 100 };
+
+  const DEPT_PLANT = [
+    "USA - Conveyance","USA - Custom Pack/Unit Pick","USA - High Speed Packaging",
+    "USA - Inventory Control","USA - Maintanence","USA - Quality",
+    "USA - Replenishment","USA - Retail Shipping","USA - Returns"
+  ];
+  const DEPT_OFFICE = [
+    "USA - Business Intelligence","USA - Catalog","USA - Customer Service",
+    "USA - Executive","USA - Finance","USA - Human Resources","USA - IT",
+    "USA - Product Management","USA - Production Planning","USA - Sales",
+    "USA - Supply Chain"
+  ];
+  const CAT_PLANT = [
+    "IT - Computer Support","IT - Employee Barcode","IT - Label Printing Support",
+    "IT - Mobile Device Support","IT - Network Cable/Device Support",
+    "IT - Network Connection Issues (Wired/Wireless)","IT - Network Drive/File Permissions",
+    "IT - Office 365 Email/Office Apps","IT - Password Reset/Unlock","IT - Printer Support",
+    "IT - Priority Request/Support","IT - Purchase Request Accessory/Computer",
+    "IT - Remote Desktop Support","IT - Shipping Software Support",
+    "IT - Software Installation / Support"
+  ];
+  const CAT_OFFICE = [
+    "IT - Alarm System Code/Key FOB","IT - Catalog Software JNP, WebCat",
+    "IT - Computer Support","IT - EDI Support","IT - Employee Add/Terminate",
+    "IT - FortiClient VPN","IT - Network Cable/Device Support",
+    "IT - Network Connection Issues (Wired/Wireless)","IT - Network Drive/File Permissions",
+    "IT - Office 365 Email/Office Apps","IT - Password Reset/Unlock",
+    "IT - Phone System/Cell Phone","IT - Printer Support","IT - Priority Request/Support",
+    "IT - Purchase Request Accessory/Computer","IT - Remote Desktop Support",
+    "IT - Server Support","IT - Software Installation / Support"
+  ];
+
+  function selectTicketType(el, val) {
+    document.querySelectorAll(".type-btn").forEach(function(b) { b.classList.remove("selected"); });
+    el.classList.add("selected");
+    selectedTicketType = val;
+  }
+
+  function updateDepartments() {
+    var officeType = document.getElementById("officeType").value;
+    var deptSelect = document.getElementById("department");
+    deptSelect.innerHTML = '<option value="">— Select your department —</option>';
+    var list = officeType === "Plant" ? DEPT_PLANT : officeType === "Office/Remote" ? DEPT_OFFICE : [];
+    list.forEach(function(d) {
+      var opt = document.createElement("option");
+      opt.value = d; opt.textContent = d;
+      deptSelect.appendChild(opt);
+    });
+    // Reset department selection
+    deptSelect.value = "";
+    updateCategories();
+  }
+
+  function updateCategories() {
+    var officeType = document.getElementById("officeType").value;
+    var catSelect  = document.getElementById("category");
+    var catField   = document.getElementById("categoryField");
+
+    if (selectedTicketType === "IT") {
+      catField.classList.remove("hidden");
+      catSelect.innerHTML = '<option value="">— Select a category —</option>';
+      var list = officeType === "Plant" ? CAT_PLANT : officeType === "Office/Remote" ? CAT_OFFICE : [];
+      list.forEach(function(c) {
+        var opt = document.createElement("option");
+        opt.value = c; opt.textContent = c;
+        catSelect.appendChild(opt);
+      });
+    } else {
+      catField.classList.add("hidden");
+    }
+  }
 
   function goStep(n) {
     if (n > 1 && !validateStep(n - 1)) return;
+    if (n === 3) updateCategories();
     if (n === 4) buildReview();
-    for (let i = 1; i <= 4; i++) {
+    for (var i = 1; i <= 4; i++) {
       var el = document.getElementById("step" + i);
       if (el) el.classList.add("hidden");
     }
     var target = document.getElementById("step" + n);
     if (target) target.classList.remove("hidden");
-    document.getElementById("progressFill").style.width = steps[n] + "%";
+    var pct = { 1: 25, 2: 50, 3: 75, 4: 100 };
+    document.getElementById("progressFill").style.width = pct[n] + "%";
     document.getElementById("stepLabel").textContent = "Step " + n + " of 4";
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -245,7 +307,11 @@
     var ok = true;
     function show(id, el) { document.getElementById(id).classList.add("show"); if (el) el.classList.add("err"); ok = false; }
     function hide(id, el) { document.getElementById(id).classList.remove("show"); if (el) el.classList.remove("err"); }
+
     if (n === 1) {
+      if (selectedTicketType) { hide("err-tickettype", null); } else { show("err-tickettype", null); }
+    }
+    if (n === 2) {
       var email = document.getElementById("userEmail");
       var site  = document.getElementById("site");
       var otype = document.getElementById("officeType");
@@ -255,11 +321,13 @@
       if (otype.value) { hide("err-officetype", otype); } else { show("err-officetype", otype); }
       if (dept.value)  { hide("err-dept", dept); }        else { show("err-dept", dept); }
     }
-    if (n === 2) {
-      var cat = document.getElementById("category");
-      if (cat.value) { hide("err-category", cat); } else { show("err-category", cat); }
-    }
     if (n === 3) {
+      if (selectedTicketType === "IT") {
+        var cat = document.getElementById("category");
+        if (cat.value) { hide("err-category", cat); } else { show("err-category", cat); }
+      }
+    }
+    if (n === 4) {
       var sub = document.getElementById("subject");
       if (sub.value.trim()) { hide("err-subject", sub); } else { show("err-subject", sub); }
     }
@@ -281,7 +349,7 @@
     var c = document.getElementById("photoPreview");
     c.innerHTML = "";
     photoFiles.forEach(function(file, i) {
-      var url = URL.createObjectURL(file);
+      var url  = URL.createObjectURL(file);
       var wrap = document.createElement("div");
       wrap.className = "photo-thumb";
       wrap.innerHTML = '<img src="' + url + '" alt="attachment"><button class="photo-remove" onclick="removePhoto(' + i + ')">✕</button>';
@@ -292,19 +360,24 @@
   function removePhoto(i) { photoFiles.splice(i, 1); renderPreviews(); }
 
   function buildReview() {
+    var cat = selectedTicketType === "IT" ? document.getElementById("category").value : "N/A";
     var rows = [
+      ["📋 Ticket Type",  selectedTicketType],
       ["📧 Email",        document.getElementById("userEmail").value],
       ["📍 Site",         document.getElementById("site").value],
       ["🏢 Office/Plant", document.getElementById("officeType").value],
       ["👥 Department",   document.getElementById("department").value],
-      ["🔧 Category",     document.getElementById("category").value],
       ["⚡ Urgency",      selectedUrgency],
-      ["📝 Subject",      document.getElementById("subject").value],
     ];
-    document.getElementById("reviewBox").innerHTML = rows.map(function(r) { return "<strong>" + r[0] + ":</strong> " + r[1]; }).join("<br>");
+    if (selectedTicketType === "IT") rows.push(["🔧 Category", cat]);
+    rows.push(["📝 Subject", document.getElementById("subject").value]);
+    document.getElementById("reviewBox").innerHTML = rows.map(function(r) {
+      return "<strong>" + r[0] + ":</strong> " + r[1];
+    }).join("<br>");
   }
 
   async function submitTicket() {
+    if (!validateStep(4)) return;
     var btn = document.getElementById("submitBtn");
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Submitting...';
@@ -313,22 +386,22 @@
     var site        = document.getElementById("site").value;
     var officeType  = document.getElementById("officeType").value;
     var dept        = document.getElementById("department").value;
-    var category    = document.getElementById("category").value;
+    var category    = selectedTicketType === "IT" ? document.getElementById("category").value : selectedTicketType;
     var subject     = document.getElementById("subject").value.trim();
     var description = document.getElementById("description").value.trim();
 
     var fullDescription =
+      "<b>Ticket Type:</b> " + selectedTicketType + "<br>" +
       "<b>Site:</b> " + site + "<br>" +
       "<b>Office/Plant:</b> " + officeType + "<br>" +
       "<b>Department:</b> " + dept + "<br>" +
-      "<b>Category:</b> " + category + "<br>" +
       "<b>Urgency:</b> " + selectedUrgency + "<br><br>" +
       "<b>Issue Description:</b><br>" + description.replace(/\n/g, "<br>");
 
     try {
       var formData = new FormData();
       formData.append("email",       email);
-      formData.append("subject",     "[" + category + "] " + subject);
+      formData.append("subject",     "[" + selectedTicketType + "] " + subject);
       formData.append("description", fullDescription);
       formData.append("urgency",     selectedUrgency);
       formData.append("category",    category);
@@ -360,7 +433,9 @@
     document.querySelectorAll("select").forEach(function(el) { el.value = ""; });
     document.querySelectorAll(".urgency-btn").forEach(function(b) { b.classList.remove("selected"); });
     document.querySelector(".urgency-btn.normal").classList.add("selected");
-    selectedUrgency = "Normal";
+    document.querySelectorAll(".type-btn").forEach(function(b) { b.classList.remove("selected"); });
+    selectedUrgency   = "Normal";
+    selectedTicketType = "";
     photoFiles = [];
     document.getElementById("photoPreview").innerHTML = "";
     document.getElementById("stepSuccess").classList.add("hidden");
