@@ -35,8 +35,15 @@ app.post('/api/submit', upload.any(), async (req, res) => {
   try {
     const { email, subject, description, urgency, category, site } = req.body;
 
+    // Debug log — visible in Railway logs
+    console.log('Received fields:', { email, subject, urgency, category, site });
+
     if (!email || !subject) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      console.log('Missing fields — email:', email, 'subject:', subject);
+      return res.status(400).json({
+        error: 'Missing required fields',
+        received: { email: email || 'EMPTY', subject: subject || 'EMPTY' }
+      });
     }
 
     const token = await getAccessToken();
@@ -105,8 +112,9 @@ app.post('/api/submit', upload.any(), async (req, res) => {
     res.json({ success: true, display_id: displayId, id: requestId });
 
   } catch (err) {
-    console.error('Error:', err.response ? JSON.stringify(err.response.data) : err.message);
-    res.status(500).json({ error: err.message });
+    const detail = err.response ? JSON.stringify(err.response.data) : err.message;
+    console.error('Error:', detail);
+    res.status(500).json({ error: detail });
   }
 });
 
