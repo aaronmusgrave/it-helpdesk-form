@@ -10,15 +10,15 @@
     .header { background: #1a56db; color: white; padding: 20px; text-align: center; }
     .header h1 { font-size: 22px; }
     .header p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
-    .notice { background: #fefce8; border: 1px solid #fde047; border-radius: 10px; padding: 12px 16px; margin: 14px 0; font-size: 13px; color: #854d0e; }
     .container { max-width: 640px; margin: 0 auto; padding: 16px; }
     .progress-bar { background: #dbeafe; border-radius: 99px; height: 6px; margin: 14px 0 4px; }
     .progress-fill { background: #1a56db; height: 6px; border-radius: 99px; transition: width 0.4s ease; }
     .step-label { text-align: center; font-size: 12px; color: #6b7280; margin-bottom: 14px; }
     .card { background: white; border-radius: 14px; padding: 22px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
-    .card h2 { font-size: 17px; color: #1e3a5f; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 2px solid #f0f4f8; }
-    .section-title { font-size: 13px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin: 20px 0 12px; }
-    .field { margin-bottom: 16px; }
+    .card h2 { font-size: 17px; color: #1e3a5f; margin-bottom: 6px; padding-bottom: 12px; border-bottom: 2px solid #f0f4f8; }
+    .card .section-note { font-size: 12px; color: #9ca3af; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f0f4f8; margin-top: -6px; }
+    .field { margin-bottom: 18px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
     label { display: block; font-weight: 600; color: #374151; margin-bottom: 5px; font-size: 14px; }
     .sublabel { font-size: 12px; color: #9ca3af; font-weight: 400; }
     input[type="text"], input[type="email"], input[type="tel"], input[type="date"], textarea, select {
@@ -29,28 +29,25 @@
     select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 38px; }
     input:focus, textarea:focus, select:focus { outline: none; border-color: #1a56db; background: white; }
     textarea { min-height: 90px; resize: vertical; line-height: 1.5; }
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-    .location-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .loc-btn { padding: 14px 8px; border: 2px solid #e5e7eb; border-radius: 9px; background: white; cursor: pointer; text-align: center; font-size: 14px; font-weight: 500; transition: all 0.2s; color: #374151; }
-    .loc-btn.selected { border-color: #1a56db; background: #eff6ff; color: #1a56db; }
-    .loc-btn:not(.selected):hover { border-color: #93c5fd; background: #eff6ff; }
     .check-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-    .check-btn { padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 8px; background: white; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; color: #374151; display: flex; align-items: center; gap: 6px; }
+    .check-btn { padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 9px; background: white; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; color: #374151; }
     .check-btn.selected { border-color: #1a56db; background: #eff6ff; color: #1a56db; }
-    .check-btn:not(.selected):hover { border-color: #93c5fd; background: #eff6ff; }
-    .check-btn .chk { width: 16px; height: 16px; border: 2px solid #d1d5db; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; }
-    .check-btn.selected .chk { background: #1a56db; border-color: #1a56db; color: white; }
-    .toggle-row { display: flex; gap: 8px; }
-    .toggle-btn { flex: 1; padding: 12px; border: 2px solid #e5e7eb; border-radius: 9px; background: white; cursor: pointer; text-align: center; font-size: 14px; font-weight: 600; transition: all 0.2s; }
-    .toggle-btn.yes.selected { border-color: #16a34a; background: #f0fdf4; color: #166534; }
-    .toggle-btn.no.selected  { border-color: #dc2626; background: #fef2f2; color: #991b1b; }
-    .toggle-btn:not(.selected):hover { border-color: #93c5fd; background: #eff6ff; }
-    .sub-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin-top: 10px; }
-    .review-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; font-size: 13px; line-height: 1.8; color: #374151; }
-    .review-section { font-weight: 700; color: #1e3a5f; margin-top: 10px; margin-bottom: 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; }
-    .review-box strong { color: #374151; }
-    .btn-row { display: flex; gap: 10px; margin-top: 16px; }
+    .check-btn:hover:not(.selected) { border-color: #93c5fd; background: #f8faff; }
+    .radio-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .radio-btn { padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 9px; background: white; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; color: #374151; }
+    .radio-btn.selected { border-color: #1a56db; background: #eff6ff; color: #1a56db; }
+    .radio-btn:hover:not(.selected) { border-color: #93c5fd; background: #f8faff; }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border: 2px solid #e5e7eb; border-radius: 9px; background: #f9fafb; margin-bottom: 10px; }
+    .toggle-row label { margin: 0; font-size: 14px; }
+    .toggle-row select { width: auto; min-width: 100px; padding: 6px 30px 6px 10px; font-size: 14px; border: 1px solid #d1d5db; background-color: white; }
+    .address-box { background: #fffbeb; border: 2px solid #fcd34d; border-radius: 10px; padding: 16px; margin-top: 12px; }
+    .address-box .addr-label { font-size: 12px; font-weight: 700; color: #92400e; margin-bottom: 12px; }
+    .review-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; font-size: 13px; line-height: 1.8; color: #374151; }
+    .review-section { margin-bottom: 14px; }
+    .review-section h4 { font-size: 12px; font-weight: 700; color: #1a56db; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid #e2e8f0; }
+    .review-section p { margin: 2px 0; }
+    .review-section strong { color: #1e3a5f; }
+    .btn-row { display: flex; gap: 10px; margin-top: 6px; }
     .btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
     .btn-primary { background: #1a56db; color: white; }
     .btn-primary:hover { background: #1547c0; }
@@ -68,58 +65,58 @@
     .spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.35); border-top-color: white; border-radius: 50%; animation: spin 0.75s linear infinite; vertical-align: middle; margin-right: 8px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .hidden { display: none !important; }
-    @media (max-width: 480px) { .two-col, .three-col { grid-template-columns: 1fr; } }
+    .info-banner { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 9px; padding: 12px 14px; font-size: 13px; color: #1e40af; margin-bottom: 18px; }
   </style>
 </head>
 <body>
 
 <div class="header">
   <h1>🖥️ IT Onboarding Request</h1>
-  <p>MotoRad — New Employee IT Setup</p>
+  <p>MotoRad IT Department — New Employee Setup</p>
 </div>
 
 <div class="container">
-  <div class="notice">⚠️ Please submit at least <strong>5 business days</strong> before the employee's start date.</div>
-  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:25%"></div></div>
-  <div class="step-label" id="stepLabel">Step 1 of 4</div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:20%"></div></div>
+  <div class="step-label" id="stepLabel">Step 1 of 5</div>
 
   <!-- STEP 1: Employee Information -->
   <div class="card" id="step1">
     <h2>👤 Section 1 — Employee Information</h2>
+    <p class="section-note">To be completed by HR or the hiring manager. Submit at least 5 business days before start date.</p>
 
-    <div class="two-col">
-      <div class="field">
+    <div class="field-row">
+      <div class="field" style="margin-bottom:0">
         <label>Full Name <span class="sublabel">*</span></label>
         <input type="text" id="empName" placeholder="First Last" />
         <div class="error-msg" id="err-empName">Required.</div>
       </div>
-      <div class="field">
+      <div class="field" style="margin-bottom:0">
         <label>Job Title <span class="sublabel">*</span></label>
-        <input type="text" id="jobTitle" placeholder="e.g. Warehouse Associate" />
-        <div class="error-msg" id="err-jobTitle">Required.</div>
+        <input type="text" id="empTitle" placeholder="e.g. Warehouse Associate" />
+        <div class="error-msg" id="err-empTitle">Required.</div>
       </div>
     </div>
 
-    <div class="two-col">
-      <div class="field">
+    <div class="field-row" style="margin-top:18px">
+      <div class="field" style="margin-bottom:0">
         <label>Department <span class="sublabel">*</span></label>
-        <input type="text" id="department" placeholder="e.g. IT, Finance" />
-        <div class="error-msg" id="err-department">Required.</div>
+        <input type="text" id="empDept" placeholder="e.g. Operations" />
+        <div class="error-msg" id="err-empDept">Required.</div>
       </div>
-      <div class="field">
+      <div class="field" style="margin-bottom:0">
         <label>Direct Manager <span class="sublabel">*</span></label>
-        <input type="text" id="manager" placeholder="Manager's full name" />
-        <div class="error-msg" id="err-manager">Required.</div>
+        <input type="text" id="empManager" placeholder="Manager's name" />
+        <div class="error-msg" id="err-empManager">Required.</div>
       </div>
     </div>
 
-    <div class="two-col">
-      <div class="field">
+    <div class="field-row" style="margin-top:18px">
+      <div class="field" style="margin-bottom:0">
         <label>Start Date <span class="sublabel">*</span></label>
-        <input type="date" id="startDate" />
-        <div class="error-msg" id="err-startDate">Required.</div>
+        <input type="date" id="empStartDate" />
+        <div class="error-msg" id="err-empStartDate">Required.</div>
       </div>
-      <div class="field">
+      <div class="field" style="margin-bottom:0">
         <label>Employment Type <span class="sublabel">*</span></label>
         <select id="empType">
           <option value="">— Select —</option>
@@ -133,53 +130,51 @@
       </div>
     </div>
 
-    <div class="field">
+    <div class="field" style="margin-top:18px">
       <label>Work Location <span class="sublabel">*</span></label>
-      <div class="location-grid">
-        <button class="loc-btn" onclick="selectLocation(this,'Office')">🏢 Office</button>
-        <button class="loc-btn" onclick="selectLocation(this,'Warehouse')">🏭 Warehouse</button>
-        <button class="loc-btn" onclick="selectLocation(this,'Remote')">🏠 Remote</button>
-        <button class="loc-btn" onclick="selectLocation(this,'Hybrid')">🔀 Hybrid</button>
+      <div class="radio-grid" id="workLocationBtns">
+        <button class="radio-btn" onclick="selectLocation(this,'Office')">🏢 Office</button>
+        <button class="radio-btn" onclick="selectLocation(this,'Warehouse')">🏭 Warehouse</button>
+        <button class="radio-btn" onclick="selectLocation(this,'Remote')">🏠 Remote</button>
+        <button class="radio-btn" onclick="selectLocation(this,'Hybrid')">🔄 Hybrid</button>
       </div>
-      <div class="error-msg" id="err-location">Please select a work location.</div>
+      <div class="error-msg" id="err-workLocation">Please select a work location.</div>
     </div>
 
-    <div class="hidden" id="shippingSection">
-      <div class="sub-card">
-        <div class="section-title">📦 Shipping Address (Remote Employees)</div>
-        <div class="field">
-          <label>Street Address</label>
-          <input type="text" id="shipStreet" placeholder="123 Main St" />
+    <div class="address-box hidden" id="shippingBox">
+      <div class="addr-label">⚠️ SHIPPING ADDRESS — Remote Employees Only</div>
+      <div class="field">
+        <label>Street Address</label>
+        <input type="text" id="shipStreet" placeholder="123 Main St" />
+      </div>
+      <div class="field-row">
+        <div class="field" style="margin-bottom:0">
+          <label>City</label>
+          <input type="text" id="shipCity" placeholder="City" />
         </div>
-        <div class="three-col">
-          <div class="field">
-            <label>City</label>
-            <input type="text" id="shipCity" placeholder="City" />
-          </div>
-          <div class="field">
-            <label>State</label>
-            <input type="text" id="shipState" placeholder="TX" />
-          </div>
-          <div class="field">
-            <label>ZIP</label>
-            <input type="text" id="shipZip" placeholder="12345" />
-          </div>
+        <div class="field" style="margin-bottom:0">
+          <label>State</label>
+          <input type="text" id="shipState" placeholder="ST" maxlength="2" />
         </div>
-        <div class="field">
-          <label>Delivery Instructions</label>
-          <input type="text" id="shipNotes" placeholder="e.g. Leave at front door" />
-        </div>
+      </div>
+      <div class="field" style="margin-top:12px">
+        <label>ZIP Code</label>
+        <input type="text" id="shipZip" placeholder="00000" maxlength="10" />
+      </div>
+      <div class="field">
+        <label>Delivery Instructions <span class="sublabel">Optional</span></label>
+        <input type="text" id="shipNotes" placeholder="e.g. Leave at front door" />
       </div>
     </div>
 
-    <div class="two-col">
-      <div class="field">
-        <label>Cell Phone</label>
-        <input type="tel" id="cellPhone" placeholder="(555) 555-5555" />
+    <div class="field-row" style="margin-top:18px">
+      <div class="field" style="margin-bottom:0">
+        <label>Cell Phone <span class="sublabel">Optional</span></label>
+        <input type="tel" id="empPhone" placeholder="(000) 000-0000" />
       </div>
-      <div class="field">
+      <div class="field" style="margin-bottom:0">
         <label>Cell Phone Plan</label>
-        <select id="cellPlan">
+        <select id="empPhonePlan">
           <option value="">— Select if applicable —</option>
           <option>Corp Plan</option>
           <option>Stipend</option>
@@ -188,7 +183,7 @@
       </div>
     </div>
 
-    <div class="btn-row">
+    <div class="btn-row" style="margin-top:22px">
       <button class="btn btn-primary" onclick="goStep(2)">Next →</button>
     </div>
   </div>
@@ -196,37 +191,38 @@
   <!-- STEP 2: Hardware Requirements -->
   <div class="card hidden" id="step2">
     <h2>💻 Section 2 — Hardware Requirements</h2>
+    <p class="section-note">Check all that apply. Leave blank if not needed.</p>
 
     <div class="field">
-      <label>Device Type <span class="sublabel">Select all that apply</span></label>
-      <div class="check-grid">
-        <button class="check-btn" onclick="toggleCheck(this)"><span class="chk"></span>Laptop</button>
-        <button class="check-btn" onclick="toggleCheck(this)"><span class="chk"></span>Desktop</button>
+      <label>Device Type</label>
+      <div class="check-grid" id="deviceTypeBtns">
+        <button class="check-btn" onclick="toggleCheck(this,'deviceType','Laptop')">💻 Laptop</button>
+        <button class="check-btn" onclick="toggleCheck(this,'deviceType','Desktop')">🖥️ Desktop</button>
       </div>
     </div>
 
     <div class="field">
       <label>Monitor(s)</label>
-      <div class="check-grid">
-        <button class="check-btn" onclick="toggleCheck(this)"><span class="chk"></span>Single</button>
-        <button class="check-btn" onclick="toggleCheck(this)"><span class="chk"></span>Dual</button>
-        <button class="check-btn" onclick="toggleCheck(this)"><span class="chk"></span>Not Required</button>
+      <div class="radio-grid" id="monitorBtns">
+        <button class="radio-btn" onclick="selectRadio(this,'monitor','Single')">Single</button>
+        <button class="radio-btn" onclick="selectRadio(this,'monitor','Dual')">Dual</button>
+        <button class="radio-btn" onclick="selectRadio(this,'monitor','Not Required')">Not Required</button>
       </div>
     </div>
 
     <div class="field">
-      <label>Peripherals <span class="sublabel">Select all that apply</span></label>
-      <div class="check-grid">
-        <button class="check-btn" onclick="toggleCheck(this)"><span class="chk"></span>Mouse</button>
-        <button class="check-btn" onclick="toggleCheck(this)"><span class="chk"></span>Keyboard</button>
-        <button class="check-btn" onclick="toggleCheck(this)"><span class="chk"></span>Headset</button>
-        <button class="check-btn" onclick="toggleCheck(this)"><span class="chk"></span>Docking Station</button>
-        <button class="check-btn" onclick="toggleCheck(this)"><span class="chk"></span>Webcam</button>
+      <label>Peripherals</label>
+      <div class="check-grid" id="peripheralBtns">
+        <button class="check-btn" onclick="toggleCheck(this,'peripheral','Mouse')">🖱️ Mouse</button>
+        <button class="check-btn" onclick="toggleCheck(this,'peripheral','Keyboard')">⌨️ Keyboard</button>
+        <button class="check-btn" onclick="toggleCheck(this,'peripheral','Headset')">🎧 Headset</button>
+        <button class="check-btn" onclick="toggleCheck(this,'peripheral','Docking Station')">🔌 Docking Station</button>
+        <button class="check-btn" onclick="toggleCheck(this,'peripheral','Webcam')">📷 Webcam</button>
       </div>
     </div>
 
     <div class="field">
-      <label>Special Hardware Notes</label>
+      <label>Special Hardware Notes <span class="sublabel">Optional</span></label>
       <textarea id="hardwareNotes" placeholder="Any special hardware requirements..."></textarea>
     </div>
 
@@ -239,49 +235,42 @@
   <!-- STEP 3: Software & System Access -->
   <div class="card hidden" id="step3">
     <h2>🔐 Section 3 — Software &amp; System Access</h2>
+    <p class="section-note">Check all systems this employee will need access to.</p>
 
-    <div class="section-title">Microsoft 365</div>
     <div class="field">
-      <label>Microsoft 365 Account Required?</label>
-      <div class="toggle-row">
-        <button class="toggle-btn yes" onclick="toggleYesNo(this,'m365','yes')">✅ Yes</button>
-        <button class="toggle-btn no"  onclick="toggleYesNo(this,'m365','no')">❌ No</button>
-      </div>
-    </div>
-    <div class="hidden" id="m365Fields">
-      <div class="sub-card">
-        <div class="field">
-          <label>Shared Mailboxes</label>
-          <input type="text" id="sharedMailboxes" placeholder="e.g. info@motorad.com, sales@motorad.com" />
-        </div>
-        <div class="field">
-          <label>Teams Channels / Groups</label>
-          <input type="text" id="teamsChannels" placeholder="e.g. IT Team, All Staff" />
-        </div>
+      <label>Microsoft 365 Account Required</label>
+      <div class="radio-grid" id="m365Btns">
+        <button class="radio-btn" onclick="selectRadio(this,'m365','Yes')">✅ Yes</button>
+        <button class="radio-btn" onclick="selectRadio(this,'m365','No')">❌ No</button>
       </div>
     </div>
 
-    <div class="section-title">Priority ERP</div>
     <div class="field">
-      <label>Priority ERP Access Required?</label>
-      <div class="toggle-row">
-        <button class="toggle-btn yes" onclick="toggleYesNo(this,'erp','yes')">✅ Yes</button>
-        <button class="toggle-btn no"  onclick="toggleYesNo(this,'erp','no')">❌ No</button>
-      </div>
+      <label>Shared Mailboxes <span class="sublabel">Optional — list any shared mailboxes needed</span></label>
+      <input type="text" id="sharedMailboxes" placeholder="e.g. sales@motorad.com, support@motorad.com" />
     </div>
-    <div class="hidden" id="erpFields">
-      <div class="sub-card">
-        <div class="field">
-          <label>Priority Modules / Role</label>
-          <input type="text" id="priorityModules" placeholder="e.g. Inventory, Purchasing" />
-        </div>
+
+    <div class="field">
+      <label>Teams Channels / Groups <span class="sublabel">Optional</span></label>
+      <input type="text" id="teamsChannels" placeholder="e.g. General, IT Team, Operations" />
+    </div>
+
+    <div class="field">
+      <label>Priority ERP Access Required</label>
+      <div class="radio-grid" id="priorityBtns">
+        <button class="radio-btn" onclick="selectRadio(this,'priority','Yes')">✅ Yes</button>
+        <button class="radio-btn" onclick="selectRadio(this,'priority','No')">❌ No</button>
       </div>
     </div>
 
-    <div class="section-title">Other Access</div>
     <div class="field">
-      <label>Other Systems / Applications</label>
-      <textarea id="otherSystems" placeholder="List any other systems this employee will need access to..."></textarea>
+      <label>Priority Modules / Role <span class="sublabel">Optional — specify if Priority ERP access is needed</span></label>
+      <input type="text" id="priorityModules" placeholder="e.g. Inventory, Purchasing, Sales" />
+    </div>
+
+    <div class="field">
+      <label>Other Systems / Applications <span class="sublabel">Optional</span></label>
+      <textarea id="otherSystems" placeholder="List any other software or systems this employee will need access to..."></textarea>
     </div>
 
     <div class="btn-row">
@@ -290,50 +279,66 @@
     </div>
   </div>
 
-  <!-- STEP 4: Network, Notes & Submit -->
+  <!-- STEP 4: Network, Storage & Notes -->
   <div class="card hidden" id="step4">
-    <h2>🌐 Section 4 — Network, Notes &amp; Submit</h2>
+    <h2>🌐 Section 4 &amp; 5 — Network, Storage &amp; Notes</h2>
 
-    <div class="section-title">Network &amp; Storage</div>
     <div class="field">
-      <label>Network Drives to Map</label>
-      <input type="text" id="networkDrives" placeholder="e.g. \\server\shared, \\server\department" />
-    </div>
-    <div class="field">
-      <label>Network Printer(s)</label>
-      <input type="text" id="networkPrinters" placeholder="e.g. HP LaserJet - Warehouse, Zebra - Shipping" />
+      <label>Network Drives to Map <span class="sublabel">Optional</span></label>
+      <input type="text" id="networkDrives" placeholder="e.g. \\server\shared, \\server\dept" />
     </div>
 
-    <div class="section-title">Special Instructions</div>
     <div class="field">
-      <label>Special Instructions / Notes</label>
-      <textarea id="specialNotes" placeholder="Any additional notes for IT..."></textarea>
+      <label>Network Printer(s) <span class="sublabel">Optional</span></label>
+      <input type="text" id="networkPrinters" placeholder="e.g. HP-OfficeJet-2F, Zebra-Warehouse" />
     </div>
 
-    <div class="section-title">Submitted By</div>
-    <div class="two-col">
-      <div class="field">
-        <label>Your Name <span class="sublabel">*</span></label>
-        <input type="text" id="submittedBy" placeholder="Your full name" />
-        <div class="error-msg" id="err-submittedBy">Required.</div>
-      </div>
-      <div class="field">
-        <label>Your Email <span class="sublabel">*</span></label>
-        <input type="email" id="submitterEmail" placeholder="you@motorad.com" />
-        <div class="error-msg" id="err-submitterEmail">Required.</div>
-      </div>
-    </div>
     <div class="field">
-      <label>Your Title / Department</label>
-      <input type="text" id="submitterTitle" placeholder="e.g. HR Manager" />
+      <label>Special Instructions / Notes <span class="sublabel">Optional — anything IT should know</span></label>
+      <textarea id="specialNotes" placeholder="Any special setup instructions, access requirements, or notes for IT..."></textarea>
     </div>
-
-    <div class="section-title">Review</div>
-    <div class="review-box" id="reviewBox"></div>
 
     <div class="btn-row">
       <button class="btn btn-secondary" onclick="goStep(3)">← Back</button>
-      <button class="btn btn-primary" id="submitBtn" onclick="submitForm()">✅ Submit Request</button>
+      <button class="btn btn-primary"   onclick="goStep(5)">Next →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: Submitted By + Review + Submit -->
+  <div class="card hidden" id="step5">
+    <h2>✍️ Section 6 — Submitted By</h2>
+
+    <div class="info-banner">
+      📌 Please submit at least <strong>5 business days</strong> before the employee's start date.
+    </div>
+
+    <div class="field-row">
+      <div class="field" style="margin-bottom:0">
+        <label>Your Full Name <span class="sublabel">*</span></label>
+        <input type="text" id="submittedBy" placeholder="Your name" />
+        <div class="error-msg" id="err-submittedBy">Required.</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Your Title / Department <span class="sublabel">*</span></label>
+        <input type="text" id="submittedByTitle" placeholder="e.g. HR Manager" />
+        <div class="error-msg" id="err-submittedByTitle">Required.</div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:18px">
+      <label>Your Email Address <span class="sublabel">*</span></label>
+      <input type="email" id="submittedByEmail" placeholder="you@motorad.com" />
+      <div class="error-msg" id="err-submittedByEmail">Please enter a valid email.</div>
+    </div>
+
+    <div class="field">
+      <label>Review Your Request</label>
+      <div class="review-box" id="reviewBox"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(4)">← Back</button>
+      <button class="btn btn-primary" id="submitBtn" onclick="submitTicket()">✅ Submit Onboarding Request</button>
     </div>
   </div>
 
@@ -342,9 +347,9 @@
     <div class="success-box">
       <div class="big-icon">✅</div>
       <h2>Request Submitted!</h2>
-      <p>Your IT onboarding request has been received.</p>
+      <p>Your onboarding request ticket number is:</p>
       <div class="ticket-num" id="ticketNumber">#—</div>
-      <p style="margin-top:10px">IT will complete setup before <strong id="confirmStartDate"></strong>.<br>Confirmation sent to <strong id="confirmEmail"></strong>.</p>
+      <p style="margin-top:10px">IT has been notified and will complete setup before the employee's first day.<br><br>Confirmation sent to<br><strong id="confirmEmail"></strong></p>
       <button class="btn btn-primary" style="margin-top:24px; flex:none; width:100%" onclick="resetForm()">Submit Another Request</button>
     </div>
   </div>
@@ -353,245 +358,245 @@
 <script>
   const PROXY_URL = "/api/submit";
 
-  let selectedLocation = "";
-  let m365Required     = "";
-  let erpRequired      = "";
+  // State
+  let workLocation   = "";
+  let deviceTypes    = [];
+  let monitorChoice  = "";
+  let peripherals    = [];
+  let m365Required   = "";
+  let priorityAccess = "";
 
-  // Location
+  const stepPct = { 1:20, 2:40, 3:60, 4:80, 5:100 };
+
   function selectLocation(el, val) {
-    document.querySelectorAll(".loc-btn").forEach(function(b) { b.classList.remove("selected"); });
+    document.querySelectorAll("#workLocationBtns .radio-btn").forEach(function(b){ b.classList.remove("selected"); });
     el.classList.add("selected");
-    selectedLocation = val;
-    document.getElementById("shippingSection").classList.toggle("hidden", val !== "Remote");
+    workLocation = val;
+    document.getElementById("shippingBox").classList.toggle("hidden", val !== "Remote");
   }
 
-  // Yes/No toggles
-  function toggleYesNo(el, group, val) {
-    var row = el.parentElement;
-    row.querySelectorAll(".toggle-btn").forEach(function(b) { b.classList.remove("selected"); });
+  function selectRadio(el, group, val) {
+    var parent = el.parentElement;
+    parent.querySelectorAll(".radio-btn").forEach(function(b){ b.classList.remove("selected"); });
     el.classList.add("selected");
-    if (group === "m365") {
-      m365Required = val;
-      document.getElementById("m365Fields").classList.toggle("hidden", val !== "yes");
-    }
-    if (group === "erp") {
-      erpRequired = val;
-      document.getElementById("erpFields").classList.toggle("hidden", val !== "yes");
-    }
+    if (group === "monitor")   monitorChoice  = val;
+    if (group === "m365")      m365Required   = val;
+    if (group === "priority")  priorityAccess = val;
   }
 
-  // Checkboxes
-  function toggleCheck(el) {
+  function toggleCheck(el, group, val) {
     el.classList.toggle("selected");
-    el.querySelector(".chk").textContent = el.classList.contains("selected") ? "✓" : "";
-  }
-
-  function getChecked(container) {
-    var results = [];
-    container.querySelectorAll(".check-btn.selected").forEach(function(b) {
-      results.push(b.textContent.trim().replace("✓","").trim());
-    });
-    return results.length > 0 ? results.join(", ") : "None selected";
+    var arr = group === "deviceType" ? deviceTypes : peripherals;
+    var idx = arr.indexOf(val);
+    if (idx > -1) arr.splice(idx, 1); else arr.push(val);
   }
 
   function goStep(n) {
     if (n > 1 && !validateStep(n - 1)) return;
-    if (n === 4) buildReview();
-    for (var i = 1; i <= 4; i++) {
+    if (n === 5) buildReview();
+    for (var i = 1; i <= 5; i++) {
       var el = document.getElementById("step" + i);
       if (el) el.classList.add("hidden");
     }
     document.getElementById("step" + n).classList.remove("hidden");
-    var pct = { 1: 25, 2: 50, 3: 75, 4: 100 };
-    document.getElementById("progressFill").style.width = pct[n] + "%";
-    document.getElementById("stepLabel").textContent = "Step " + n + " of 4";
+    document.getElementById("progressFill").style.width = stepPct[n] + "%";
+    document.getElementById("stepLabel").textContent = "Step " + n + " of 5";
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function req(id, errId) {
+    var el = document.getElementById(id);
+    var ok = el.value.trim() !== "";
+    document.getElementById(errId).classList.toggle("show", !ok);
+    el.classList.toggle("err", !ok);
+    return ok;
   }
 
   function validateStep(n) {
     var ok = true;
-    function req(id, errId) {
-      var el = document.getElementById(id);
-      var err = document.getElementById(errId);
-      if (!el || !el.value.trim()) { if (err) err.classList.add("show"); if (el) el.classList.add("err"); ok = false; }
-      else { if (err) err.classList.remove("show"); if (el) el.classList.remove("err"); }
-    }
     if (n === 1) {
-      req("empName",   "err-empName");
-      req("jobTitle",  "err-jobTitle");
-      req("department","err-department");
-      req("manager",   "err-manager");
-      req("startDate", "err-startDate");
-      req("empType",   "err-empType");
-      if (!selectedLocation) {
-        document.getElementById("err-location").classList.add("show"); ok = false;
+      ok = req("empName","err-empName") && ok;
+      ok = req("empTitle","err-empTitle") && ok;
+      ok = req("empDept","err-empDept") && ok;
+      ok = req("empManager","err-empManager") && ok;
+      ok = req("empStartDate","err-empStartDate") && ok;
+      ok = req("empType","err-empType") && ok;
+      if (!workLocation) {
+        document.getElementById("err-workLocation").classList.add("show");
+        ok = false;
       } else {
-        document.getElementById("err-location").classList.remove("show");
+        document.getElementById("err-workLocation").classList.remove("show");
       }
     }
-    if (n === 4) {
-      req("submittedBy",    "err-submittedBy");
-      req("submitterEmail", "err-submitterEmail");
+    if (n === 5) {
+      ok = req("submittedBy","err-submittedBy") && ok;
+      ok = req("submittedByTitle","err-submittedByTitle") && ok;
+      var emailEl  = document.getElementById("submittedByEmail");
+      var emailOk  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim());
+      document.getElementById("err-submittedByEmail").classList.toggle("show", !emailOk);
+      emailEl.classList.toggle("err", !emailOk);
+      ok = emailOk && ok;
     }
     return ok;
   }
 
+  function val(id) { return document.getElementById(id).value.trim(); }
+
   function buildReview() {
-    var devices     = getChecked(document.querySelector("#step2"));
-    var peripherals = getChecked(document.querySelectorAll("#step2 .check-grid")[2] ? document.querySelectorAll("#step2 .check-grid")[2].closest(".field") : document.getElementById("step2"));
-
     var html = "";
-    html += '<div class="review-section">👤 Employee</div>';
-    html += "<strong>Name:</strong> " + v("empName") + "<br>";
-    html += "<strong>Title:</strong> " + v("jobTitle") + " | <strong>Dept:</strong> " + v("department") + "<br>";
-    html += "<strong>Manager:</strong> " + v("manager") + " | <strong>Start:</strong> " + v("startDate") + "<br>";
-    html += "<strong>Type:</strong> " + v("empType") + " | <strong>Location:</strong> " + selectedLocation + "<br>";
-    if (selectedLocation === "Remote") {
-      html += "<strong>Ship To:</strong> " + v("shipStreet") + ", " + v("shipCity") + ", " + v("shipState") + " " + v("shipZip") + "<br>";
+
+    function section(title, rows) {
+      var items = rows.filter(function(r){ return r[1]; }).map(function(r){
+        return "<p><strong>" + r[0] + ":</strong> " + r[1] + "</p>";
+      }).join("");
+      if (!items) return "";
+      return '<div class="review-section"><h4>' + title + '</h4>' + items + '</div>';
     }
-    if (v("cellPhone")) html += "<strong>Cell:</strong> " + v("cellPhone") + " (" + v("cellPlan") + ")<br>";
 
-    html += '<div class="review-section">💻 Hardware</div>';
-    var step2 = document.getElementById("step2");
-    var checkGrids = step2.querySelectorAll(".field");
-    checkGrids.forEach(function(field) {
-      var lbl = field.querySelector("label");
-      var chks = field.querySelectorAll(".check-btn.selected");
-      if (lbl && chks.length > 0) {
-        var vals = [];
-        chks.forEach(function(b) { vals.push(b.textContent.trim().replace("✓","").trim()); });
-        html += "<strong>" + lbl.textContent.replace("Select all that apply","").trim() + ":</strong> " + vals.join(", ") + "<br>";
-      }
-    });
-    if (v("hardwareNotes")) html += "<strong>Notes:</strong> " + v("hardwareNotes") + "<br>";
+    html += section("Employee Information", [
+      ["Name",            val("empName")],
+      ["Job Title",       val("empTitle")],
+      ["Department",      val("empDept")],
+      ["Manager",         val("empManager")],
+      ["Start Date",      val("empStartDate")],
+      ["Employment Type", val("empType")],
+      ["Work Location",   workLocation],
+      ["Cell Phone",      val("empPhone")],
+      ["Phone Plan",      val("empPhonePlan")]
+    ]);
 
-    html += '<div class="review-section">🔐 Software Access</div>';
-    html += "<strong>Microsoft 365:</strong> " + (m365Required === "yes" ? "Yes" : "No");
-    if (m365Required === "yes") {
-      if (v("sharedMailboxes")) html += " | <strong>Mailboxes:</strong> " + v("sharedMailboxes");
-      if (v("teamsChannels"))   html += " | <strong>Teams:</strong> " + v("teamsChannels");
+    if (workLocation === "Remote") {
+      html += section("Shipping Address", [
+        ["Street",    val("shipStreet")],
+        ["City/State/ZIP", val("shipCity") + " " + val("shipState") + " " + val("shipZip")],
+        ["Delivery Notes", val("shipNotes")]
+      ]);
     }
-    html += "<br><strong>Priority ERP:</strong> " + (erpRequired === "yes" ? "Yes" : "No");
-    if (erpRequired === "yes" && v("priorityModules")) html += " | <strong>Modules:</strong> " + v("priorityModules");
-    html += "<br>";
-    if (v("otherSystems")) html += "<strong>Other:</strong> " + v("otherSystems") + "<br>";
 
-    html += '<div class="review-section">🌐 Network</div>';
-    if (v("networkDrives"))   html += "<strong>Drives:</strong> " + v("networkDrives") + "<br>";
-    if (v("networkPrinters")) html += "<strong>Printers:</strong> " + v("networkPrinters") + "<br>";
-    if (v("specialNotes"))    html += "<strong>Notes:</strong> " + v("specialNotes") + "<br>";
+    html += section("Hardware", [
+      ["Device Type",  deviceTypes.join(", ") || "None selected"],
+      ["Monitor(s)",   monitorChoice],
+      ["Peripherals",  peripherals.join(", ") || "None selected"],
+      ["Notes",        val("hardwareNotes")]
+    ]);
 
-    html += '<div class="review-section">📋 Submitted By</div>';
-    html += v("submittedBy") + " — " + v("submitterEmail");
-    if (v("submitterTitle")) html += " (" + v("submitterTitle") + ")";
+    html += section("Software & Access", [
+      ["Microsoft 365",   m365Required],
+      ["Shared Mailboxes", val("sharedMailboxes")],
+      ["Teams Channels",  val("teamsChannels")],
+      ["Priority ERP",    priorityAccess],
+      ["Priority Modules", val("priorityModules")],
+      ["Other Systems",   val("otherSystems")]
+    ]);
+
+    html += section("Network & Storage", [
+      ["Network Drives",  val("networkDrives")],
+      ["Network Printers", val("networkPrinters")],
+      ["Special Notes",   val("specialNotes")]
+    ]);
+
+    html += section("Submitted By", [
+      ["Name",       val("submittedBy")],
+      ["Title/Dept", val("submittedByTitle")],
+      ["Email",      val("submittedByEmail")]
+    ]);
 
     document.getElementById("reviewBox").innerHTML = html;
   }
 
-  function v(id) {
-    var el = document.getElementById(id);
-    return el ? el.value.trim() : "";
-  }
-
-  async function submitForm() {
-    if (!validateStep(4)) return;
+  async function submitTicket() {
+    if (!validateStep(5)) return;
     var btn = document.getElementById("submitBtn");
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Submitting...';
 
-    // Build full description for the SDP ticket
-    var step2 = document.getElementById("step2");
-    var hardwareLines = [];
-    step2.querySelectorAll(".field").forEach(function(field) {
-      var lbl  = field.querySelector("label");
-      var chks = field.querySelectorAll(".check-btn.selected");
-      if (lbl && chks.length > 0) {
-        var vals = [];
-        chks.forEach(function(b) { vals.push(b.textContent.trim().replace("✓","").trim()); });
-        hardwareLines.push("<b>" + lbl.textContent.replace("Select all that apply","").trim() + ":</b> " + vals.join(", "));
-      }
-    });
+    var submitterEmail = val("submittedByEmail");
+    var empName        = val("empName");
+    var startDate      = val("empStartDate");
 
-    var desc = "";
-    desc += "<b>--- EMPLOYEE INFORMATION ---</b><br>";
-    desc += "<b>Full Name:</b> " + v("empName") + "<br>";
-    desc += "<b>Job Title:</b> " + v("jobTitle") + "<br>";
-    desc += "<b>Department:</b> " + v("department") + "<br>";
-    desc += "<b>Direct Manager:</b> " + v("manager") + "<br>";
-    desc += "<b>Start Date:</b> " + v("startDate") + "<br>";
-    desc += "<b>Employment Type:</b> " + v("empType") + "<br>";
-    desc += "<b>Work Location:</b> " + selectedLocation + "<br>";
-    if (selectedLocation === "Remote") {
-      desc += "<b>Shipping Address:</b> " + v("shipStreet") + ", " + v("shipCity") + ", " + v("shipState") + " " + v("shipZip") + "<br>";
-      if (v("shipNotes")) desc += "<b>Delivery Instructions:</b> " + v("shipNotes") + "<br>";
-    }
-    if (v("cellPhone")) desc += "<b>Cell Phone:</b> " + v("cellPhone") + " | <b>Plan:</b> " + (v("cellPlan") || "N/A") + "<br>";
+    var shipping = workLocation === "Remote"
+      ? "<br><b>Street:</b> " + val("shipStreet") +
+        "<br><b>City/State/ZIP:</b> " + val("shipCity") + ", " + val("shipState") + " " + val("shipZip") +
+        "<br><b>Delivery Notes:</b> " + (val("shipNotes") || "None")
+      : "N/A";
 
-    desc += "<br><b>--- HARDWARE REQUIREMENTS ---</b><br>";
-    desc += hardwareLines.join("<br>") + "<br>";
-    if (v("hardwareNotes")) desc += "<b>Special Notes:</b> " + v("hardwareNotes") + "<br>";
+    var fullDesc =
+      "<b>===== NEW EMPLOYEE IT ONBOARDING REQUEST =====</b><br><br>" +
 
-    desc += "<br><b>--- SOFTWARE & SYSTEM ACCESS ---</b><br>";
-    desc += "<b>Microsoft 365:</b> " + (m365Required === "yes" ? "Yes" : "No") + "<br>";
-    if (m365Required === "yes") {
-      if (v("sharedMailboxes")) desc += "<b>Shared Mailboxes:</b> " + v("sharedMailboxes") + "<br>";
-      if (v("teamsChannels"))   desc += "<b>Teams Channels:</b> " + v("teamsChannels") + "<br>";
-    }
-    desc += "<b>Priority ERP:</b> " + (erpRequired === "yes" ? "Yes" : "No") + "<br>";
-    if (erpRequired === "yes" && v("priorityModules")) desc += "<b>Priority Modules/Role:</b> " + v("priorityModules") + "<br>";
-    if (v("otherSystems")) desc += "<b>Other Systems:</b> " + v("otherSystems") + "<br>";
+      "<b>-- SECTION 1: EMPLOYEE INFORMATION --</b><br>" +
+      "<b>Full Name:</b> " + empName + "<br>" +
+      "<b>Job Title:</b> " + val("empTitle") + "<br>" +
+      "<b>Department:</b> " + val("empDept") + "<br>" +
+      "<b>Direct Manager:</b> " + val("empManager") + "<br>" +
+      "<b>Start Date:</b> " + startDate + "<br>" +
+      "<b>Employment Type:</b> " + val("empType") + "<br>" +
+      "<b>Work Location:</b> " + workLocation + "<br>" +
+      "<b>Cell Phone:</b> " + (val("empPhone") || "N/A") + "<br>" +
+      "<b>Phone Plan:</b> " + (val("empPhonePlan") || "N/A") + "<br>" +
+      "<b>Shipping Address:</b> " + shipping + "<br><br>" +
 
-    desc += "<br><b>--- NETWORK & STORAGE ---</b><br>";
-    if (v("networkDrives"))   desc += "<b>Network Drives:</b> " + v("networkDrives") + "<br>";
-    if (v("networkPrinters")) desc += "<b>Network Printers:</b> " + v("networkPrinters") + "<br>";
+      "<b>-- SECTION 2: HARDWARE --</b><br>" +
+      "<b>Device Type:</b> " + (deviceTypes.join(", ") || "Not specified") + "<br>" +
+      "<b>Monitor(s):</b> " + (monitorChoice || "Not specified") + "<br>" +
+      "<b>Peripherals:</b> " + (peripherals.join(", ") || "None") + "<br>" +
+      "<b>Hardware Notes:</b> " + (val("hardwareNotes") || "None") + "<br><br>" +
 
-    if (v("specialNotes")) {
-      desc += "<br><b>--- SPECIAL INSTRUCTIONS ---</b><br>" + v("specialNotes") + "<br>";
-    }
+      "<b>-- SECTION 3: SOFTWARE & ACCESS --</b><br>" +
+      "<b>Microsoft 365 Required:</b> " + (m365Required || "Not specified") + "<br>" +
+      "<b>Shared Mailboxes:</b> " + (val("sharedMailboxes") || "None") + "<br>" +
+      "<b>Teams Channels:</b> " + (val("teamsChannels") || "None") + "<br>" +
+      "<b>Priority ERP Access:</b> " + (priorityAccess || "Not specified") + "<br>" +
+      "<b>Priority Modules/Role:</b> " + (val("priorityModules") || "None") + "<br>" +
+      "<b>Other Systems:</b> " + (val("otherSystems") || "None") + "<br><br>" +
 
-    desc += "<br><b>--- SUBMITTED BY ---</b><br>";
-    desc += v("submittedBy") + " | " + v("submitterEmail");
-    if (v("submitterTitle")) desc += " | " + v("submitterTitle");
+      "<b>-- SECTION 4: NETWORK & STORAGE --</b><br>" +
+      "<b>Network Drives:</b> " + (val("networkDrives") || "None") + "<br>" +
+      "<b>Network Printers:</b> " + (val("networkPrinters") || "None") + "<br><br>" +
+
+      "<b>-- SECTION 5: SPECIAL NOTES --</b><br>" +
+      (val("specialNotes") || "None") + "<br><br>" +
+
+      "<b>-- SUBMITTED BY --</b><br>" +
+      "<b>Name:</b> " + val("submittedBy") + "<br>" +
+      "<b>Title/Department:</b> " + val("submittedByTitle") + "<br>" +
+      "<b>Email:</b> " + submitterEmail;
 
     try {
       var formData = new FormData();
-      formData.append("email",       v("submitterEmail"));
-      formData.append("subject",     "New Employee IT Onboarding — " + v("empName") + " | Start: " + v("startDate"));
-      formData.append("description", desc);
-      formData.append("urgency",     "Normal");
+      formData.append("email",       submitterEmail);
+      formData.append("subject",     "New Employee IT Onboarding — " + empName + " (Start: " + startDate + ")");
+      formData.append("description", fullDesc);
+      formData.append("urgency",     "High");
       formData.append("category",    "IT - Employee Add/Terminate");
-      formData.append("site",        "");
+      formData.append("site",        val("empDept"));
 
       var resp = await fetch(PROXY_URL, { method: "POST", body: formData });
       var data = await resp.json();
 
       if (!resp.ok || data.error) throw new Error(data.error || "Submission failed");
 
-      document.getElementById("step4").classList.add("hidden");
+      document.getElementById("step5").classList.add("hidden");
       document.getElementById("stepSuccess").classList.remove("hidden");
-      document.getElementById("ticketNumber").textContent    = "#" + (data.display_id || "—");
-      document.getElementById("confirmStartDate").textContent = v("startDate");
-      document.getElementById("confirmEmail").textContent    = v("submitterEmail");
-      document.getElementById("progressFill").style.width   = "100%";
-      document.getElementById("stepLabel").textContent       = "Complete!";
+      document.getElementById("ticketNumber").textContent = "#" + (data.display_id || "—");
+      document.getElementById("confirmEmail").textContent = submitterEmail;
+      document.getElementById("progressFill").style.width = "100%";
+      document.getElementById("stepLabel").textContent = "Complete!";
       window.scrollTo({ top: 0, behavior: "smooth" });
 
     } catch (err) {
       alert("⚠️ Error: " + err.message + "\n\nPlease try again or email motoradhelpdesk@motorad.com");
       btn.disabled = false;
-      btn.innerHTML = "✅ Submit Request";
+      btn.innerHTML = "✅ Submit Onboarding Request";
     }
   }
 
   function resetForm() {
-    document.querySelectorAll("input, textarea").forEach(function(el) { el.value = ""; });
-    document.querySelectorAll("select").forEach(function(el) { el.value = ""; });
-    document.querySelectorAll(".loc-btn, .toggle-btn, .check-btn").forEach(function(b) { b.classList.remove("selected"); });
-    document.querySelectorAll(".chk").forEach(function(c) { c.textContent = ""; });
-    document.getElementById("shippingSection").classList.add("hidden");
-    document.getElementById("m365Fields").classList.add("hidden");
-    document.getElementById("erpFields").classList.add("hidden");
-    selectedLocation = ""; m365Required = ""; erpRequired = "";
+    document.querySelectorAll("input[type=text], input[type=email], input[type=tel], input[type=date], textarea, select")
+      .forEach(function(el){ el.value = ""; });
+    document.querySelectorAll(".radio-btn, .check-btn").forEach(function(b){ b.classList.remove("selected"); });
+    workLocation = ""; deviceTypes = []; monitorChoice = ""; peripherals = [];
+    m365Required = ""; priorityAccess = "";
+    document.getElementById("shippingBox").classList.add("hidden");
     document.getElementById("stepSuccess").classList.add("hidden");
     goStep(1);
   }
