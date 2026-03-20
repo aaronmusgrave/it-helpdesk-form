@@ -37,9 +37,6 @@
     .radio-btn { padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 9px; background: white; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; color: #374151; }
     .radio-btn.selected { border-color: #1a56db; background: #eff6ff; color: #1a56db; }
     .radio-btn:hover:not(.selected) { border-color: #93c5fd; background: #f8faff; }
-    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border: 2px solid #e5e7eb; border-radius: 9px; background: #f9fafb; margin-bottom: 10px; }
-    .toggle-row label { margin: 0; font-size: 14px; }
-    .toggle-row select { width: auto; min-width: 100px; padding: 6px 30px 6px 10px; font-size: 14px; border: 1px solid #d1d5db; background-color: white; }
     .address-box { background: #fffbeb; border: 2px solid #fcd34d; border-radius: 10px; padding: 16px; margin-top: 12px; }
     .address-box .addr-label { font-size: 12px; font-weight: 700; color: #92400e; margin-bottom: 12px; }
     .review-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; font-size: 13px; line-height: 1.8; color: #374151; }
@@ -358,7 +355,6 @@
 <script>
   const PROXY_URL = "/api/submit";
 
-  // State
   let workLocation   = "";
   let deviceTypes    = [];
   let monitorChoice  = "";
@@ -431,8 +427,8 @@
     if (n === 5) {
       ok = req("submittedBy","err-submittedBy") && ok;
       ok = req("submittedByTitle","err-submittedByTitle") && ok;
-      var emailEl  = document.getElementById("submittedByEmail");
-      var emailOk  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim());
+      var emailEl = document.getElementById("submittedByEmail");
+      var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim());
       document.getElementById("err-submittedByEmail").classList.toggle("show", !emailOk);
       emailEl.classList.toggle("err", !emailOk);
       ok = emailOk && ok;
@@ -444,7 +440,6 @@
 
   function buildReview() {
     var html = "";
-
     function section(title, rows) {
       var items = rows.filter(function(r){ return r[1]; }).map(function(r){
         return "<p><strong>" + r[0] + ":</strong> " + r[1] + "</p>";
@@ -467,7 +462,7 @@
 
     if (workLocation === "Remote") {
       html += section("Shipping Address", [
-        ["Street",    val("shipStreet")],
+        ["Street",         val("shipStreet")],
         ["City/State/ZIP", val("shipCity") + " " + val("shipState") + " " + val("shipZip")],
         ["Delivery Notes", val("shipNotes")]
       ]);
@@ -481,18 +476,18 @@
     ]);
 
     html += section("Software & Access", [
-      ["Microsoft 365",   m365Required],
+      ["Microsoft 365",    m365Required],
       ["Shared Mailboxes", val("sharedMailboxes")],
-      ["Teams Channels",  val("teamsChannels")],
-      ["Priority ERP",    priorityAccess],
+      ["Teams Channels",   val("teamsChannels")],
+      ["Priority ERP",     priorityAccess],
       ["Priority Modules", val("priorityModules")],
-      ["Other Systems",   val("otherSystems")]
+      ["Other Systems",    val("otherSystems")]
     ]);
 
     html += section("Network & Storage", [
-      ["Network Drives",  val("networkDrives")],
+      ["Network Drives",   val("networkDrives")],
       ["Network Printers", val("networkPrinters")],
-      ["Special Notes",   val("specialNotes")]
+      ["Special Notes",    val("specialNotes")]
     ]);
 
     html += section("Submitted By", [
@@ -567,7 +562,7 @@
       formData.append("subject",     "New Employee IT Onboarding — " + empName + " (Start: " + startDate + ")");
       formData.append("description", fullDesc);
       formData.append("urgency",     "High");
-      formData.append("category",    "IT - Employee Add/Terminate");
+      formData.append("category",    "IT - Employee Add/Update/Terminate");
       formData.append("site",        val("empDept"));
 
       var resp = await fetch(PROXY_URL, { method: "POST", body: formData });
