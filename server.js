@@ -163,6 +163,7 @@ app.post('/api/submit', (req, res) => {
           requester: { email_id: requesterEmail },
           urgency: { name: ticketUrgency },
           category: { name: ticketCategory },
+          site: { name: ticketSite },
           request_type: { name: 'Incident' },
           template: { name: 'Motorad NA Service Request' }
         }
