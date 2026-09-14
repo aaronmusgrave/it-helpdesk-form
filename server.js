@@ -64,7 +64,9 @@ function resolveCategory(category) {
     return process.env.SDP_BI_CATEGORY || 'General';
   }
 
-  return normalized || 'General';
+  // ServiceDesk Plus category names are exact. Normalize comma spacing
+  // so values such as "JNP, WebCat" match "JNP,WebCat".
+  return normalized.replace(/,\s+/g, ',') || 'General';
 }
 
 async function getAccessToken() {
