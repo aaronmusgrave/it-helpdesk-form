@@ -316,7 +316,7 @@
     field.classList.remove("hidden");
     select.disabled = true;
     select.innerHTML = '<option value="">Loading active technicians...</option>';
-    status.textContent = "Loading technicians associated with " + site + "...";
+    status.textContent = "Loading technicians from IL IT Support and IL Priority Support...";
 
     try {
       var resp = await fetch("/api/technicians?site=" + encodeURIComponent(site));
@@ -333,7 +333,7 @@
 
       select.disabled = !(data.technicians || []).length;
       status.textContent = (data.technicians || []).length
-        ? "Showing active technicians associated with " + site + "."
+        ? "Showing active technicians from IL IT Support and IL Priority Support."
         : "No active technicians were found for this site.";
     } catch (err) {
       select.innerHTML = '<option value="">Unable to load technicians</option>';
