@@ -148,13 +148,19 @@ app.post('/api/submit', (req, res) => {
       });
 
       const token = await getAccessToken();
-      const safeDescription = ticketDescription.replace(/\n/g, '<br>');
+
+      // Accept both the current plain-text form payload and older submissions
+      // that included <b> and <br> markup in the description.
+      const plainDescription = ticketDescription
+        .replace(/<br\s*\/?\s*>/gi, '\n')
+        .replace(/<\/?b>/gi, '')
+        .replace(/&nbsp;/gi, ' ')
+        .trim();
+      const safeDescription = escapeHtml(plainDescription).replace(/\n/g, '<br>');
 
       const fullDescription =
-        `<b>Submitted By:</b> ${escapeHtml(requesterEmail)}<br>` +
-        `<b>Site:</b> ${escapeHtml(ticketSite)}<br>` +
-        `<b>Urgency:</b> ${escapeHtml(ticketUrgency)}<br><br>` +
-        `<b>Issue Description:</b><br>${escapeHtml(safeDescription)}`;
+        `<b>Submitted By:</b> ${escapeHtml(requesterEmail)}<br><br>` +
+        `${safeDescription}`;
 
       const requestPayload = {
         request: {
