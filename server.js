@@ -3,8 +3,11 @@ const multer = require('multer');
 const axios = require('axios');
 const FormData = require('form-data');
 const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
 
 const app = express();
+app.use(express.json({ limit: '64kb' }));
 
 const SDP_BASE = 'https://sdpondemand.manageengine.com';
 const PORTAL = 'itdesk';
@@ -102,113 +105,159 @@ async function getAccessToken() {
   return response.data.access_token;
 }
 
-function sameName(left, right) {
-  return String(left ?? '').trim().toLowerCase() === String(right ?? '').trim().toLowerCase();
-}
+const TECHNICIAN_STORE_PATH = process.env.TECHNICIAN_STORE_PATH || path.join(__dirname, 'data', 'technicians.json');
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+const ADMIN_SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || ADMIN_PASSWORD;
 
-function technicianGroupNames(technician) {
-  const values = [];
-  const candidates = [
-    technician.group,
-    technician.groups,
-    technician.support_group,
-    technician.support_groups,
-    technician.group_name,
-    technician.group_names
-  ];
+const DEFAULT_TECHNICIANS = {
+  'IL IT Support': [],
+  'IL Priority Support': []
+};
 
-  candidates.forEach((candidate) => {
-    if (Array.isArray(candidate)) {
-      candidate.forEach((item) => {
-        values.push(typeof item === 'string' ? item : item?.name);
-      });
-    } else if (typeof candidate === 'string') {
-      values.push(candidate);
-    } else if (candidate && typeof candidate === 'object') {
-      values.push(candidate.name);
-    }
-  });
-
-  return values.filter(Boolean);
-}
-
-function isActiveTechnician(technician) {
-  const status = String(technician.status?.name ?? technician.status ?? '').toLowerCase();
-  return technician.deleted !== true && technician.active !== false && !['inactive', 'disabled'].includes(status);
-}
-
-async function getActiveTechniciansForSite(token, siteName) {
-  const allTechnicians = [];
-  const rowCount = 100;
-  let startIndex = 1;
-
-  while (startIndex <= 1000) {
-    const inputData = {
-      list_info: {
-        start_index: startIndex,
-        row_count: rowCount,
-        sort_field: 'name',
-        sort_order: 'asc'
-      }
-    };
-
-    const response = await axios.get(
-      `${SDP_BASE}/app/${PORTAL}/api/v3/technicians`,
-      {
-        params: { input_data: JSON.stringify(inputData) },
-        headers: {
-          Authorization: `Zoho-oauthtoken ${token}`,
-          Accept: 'application/vnd.manageengine.sdp.v3+json'
-        }
-      }
-    );
-
-    const batch = Array.isArray(response.data?.technicians) ? response.data.technicians : [];
-    allTechnicians.push(...batch);
-
-    if (batch.length < rowCount) break;
-    startIndex += batch.length;
+function ensureTechnicianStore() {
+  const directory = path.dirname(TECHNICIAN_STORE_PATH);
+  fs.mkdirSync(directory, { recursive: true });
+  if (!fs.existsSync(TECHNICIAN_STORE_PATH)) {
+    fs.writeFileSync(TECHNICIAN_STORE_PATH, JSON.stringify(DEFAULT_TECHNICIANS, null, 2));
   }
+}
 
-  const allowedGroups = TECHNICIAN_GROUPS_BY_SITE[siteName] || [];
+function readTechnicianStore() {
+  ensureTechnicianStore();
+  try {
+    const parsed = JSON.parse(fs.readFileSync(TECHNICIAN_STORE_PATH, 'utf8'));
+    return {
+      'IL IT Support': Array.isArray(parsed['IL IT Support']) ? parsed['IL IT Support'] : [],
+      'IL Priority Support': Array.isArray(parsed['IL Priority Support']) ? parsed['IL Priority Support'] : []
+    };
+  } catch {
+    return { ...DEFAULT_TECHNICIANS };
+  }
+}
 
-  return allTechnicians
-    .filter((technician) => {
-      if (!isActiveTechnician(technician)) return false;
-      return technicianGroupNames(technician).some((groupName) =>
-        allowedGroups.some((allowedGroup) => sameName(groupName, allowedGroup))
-      );
-    })
-    .map((technician) => ({
-      id: technician.id ?? null,
-      name: technician.name,
-      email: technician.email_id ?? technician.email ?? null
-    }))
-    .filter((technician) => technician.name)
-    .sort((left, right) => left.name.localeCompare(right.name));
+function writeTechnicianStore(store) {
+  ensureTechnicianStore();
+  const temporaryPath = `${TECHNICIAN_STORE_PATH}.tmp`;
+  fs.writeFileSync(temporaryPath, JSON.stringify(store, null, 2));
+  fs.renameSync(temporaryPath, TECHNICIAN_STORE_PATH);
+}
+
+function getManualTechniciansForSite(siteName) {
+  const groups = TECHNICIAN_GROUPS_BY_SITE[siteName] || [];
+  const store = readTechnicianStore();
+  const names = groups.flatMap((group) => store[group] || []);
+  return [...new Set(names.map((name) => String(name).trim()).filter(Boolean))]
+    .sort((left, right) => left.localeCompare(right))
+    .map((name) => ({ name }));
+}
+
+function base64Url(value) {
+  return Buffer.from(value).toString('base64url');
+}
+
+function createAdminSession() {
+  const expiresAt = Date.now() + (8 * 60 * 60 * 1000);
+  const payload = `${expiresAt}`;
+  const signature = crypto.createHmac('sha256', ADMIN_SESSION_SECRET).update(payload).digest('base64url');
+  return `${base64Url(payload)}.${signature}`;
+}
+
+function isAdminSessionValid(req) {
+  if (!ADMIN_SESSION_SECRET) return false;
+  const cookies = String(req.headers.cookie || '').split(';').reduce((result, item) => {
+    const [key, ...parts] = item.trim().split('=');
+    if (key) result[key] = parts.join('=');
+    return result;
+  }, {});
+  const session = cookies.admin_session;
+  if (!session) return false;
+
+  const [encodedExpiry, signature] = session.split('.');
+  if (!encodedExpiry || !signature) return false;
+
+  const payload = Buffer.from(encodedExpiry, 'base64url').toString('utf8');
+  const expectedSignature = crypto.createHmac('sha256', ADMIN_SESSION_SECRET).update(payload).digest('base64url');
+  if (signature.length !== expectedSignature.length) return false;
+  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) return false;
+
+  return Number(payload) > Date.now();
+}
+
+function requireAdmin(req, res, next) {
+  if (!ADMIN_PASSWORD) {
+    return res.status(503).json({ error: 'Admin access is not configured' });
+  }
+  if (!isAdminSessionValid(req)) {
+    return res.status(401).json({ error: 'Admin authentication required' });
+  }
+  return next();
 }
 
 app.use(express.static(path.join(__dirname, 'static')));
 
-app.get('/api/technicians', async (req, res) => {
-  try {
-    const siteName = String(req.query.site ?? '').trim();
-    if (!siteName) {
-      return res.status(400).json({ error: 'site is required' });
-    }
-
-    const token = await getAccessToken();
-    const technicians = await getActiveTechniciansForSite(token, siteName);
-    return res.json({ site: siteName, technicians });
-  } catch (error) {
-    const detail = error.response?.data
-      ? JSON.stringify(error.response.data)
-      : error instanceof Error
-        ? error.message
-        : 'Technician lookup failed';
-    console.error('Technician lookup failed:', detail);
-    return res.status(502).json({ error: 'Unable to load technicians' });
+app.post('/api/admin/login', (req, res) => {
+  if (!ADMIN_PASSWORD) {
+    return res.status(503).json({ error: 'Admin access is not configured' });
   }
+
+  const password = String(req.body?.password || '');
+  const passwordMatches = password.length === ADMIN_PASSWORD.length &&
+    crypto.timingSafeEqual(Buffer.from(password), Buffer.from(ADMIN_PASSWORD));
+  if (!password || !passwordMatches) {
+    return res.status(401).json({ error: 'Invalid admin password' });
+  }
+
+  res.setHeader('Set-Cookie', `admin_session=${createAdminSession()}; Max-Age=28800; HttpOnly; Secure; SameSite=Strict; Path=/`);
+  return res.json({ ok: true });
+});
+
+app.post('/api/admin/logout', requireAdmin, (req, res) => {
+  res.setHeader('Set-Cookie', 'admin_session=; Max-Age=0; HttpOnly; Secure; SameSite=Strict; Path=/');
+  return res.json({ ok: true });
+});
+
+app.get('/api/admin/technicians', requireAdmin, (req, res) => {
+  return res.json({ technicians: readTechnicianStore() });
+});
+
+app.post('/api/admin/technicians', requireAdmin, (req, res) => {
+  const group = String(req.body?.group || '').trim();
+  const name = String(req.body?.name || '').trim();
+  const store = readTechnicianStore();
+
+  if (!Object.prototype.hasOwnProperty.call(store, group)) {
+    return res.status(400).json({ error: 'Invalid technician group' });
+  }
+  if (!name || name.length > 150) {
+    return res.status(400).json({ error: 'Technician name is required' });
+  }
+  if (!store[group].some((existing) => existing.toLowerCase() === name.toLowerCase())) {
+    store[group].push(name);
+    store[group].sort((left, right) => left.localeCompare(right));
+    writeTechnicianStore(store);
+  }
+
+  return res.json({ ok: true, technicians: store });
+});
+
+app.delete('/api/admin/technicians', requireAdmin, (req, res) => {
+  const group = String(req.body?.group || '').trim();
+  const name = String(req.body?.name || '').trim();
+  const store = readTechnicianStore();
+
+  if (!Object.prototype.hasOwnProperty.call(store, group)) {
+    return res.status(400).json({ error: 'Invalid technician group' });
+  }
+
+  store[group] = store[group].filter((existing) => existing.toLowerCase() !== name.toLowerCase());
+  writeTechnicianStore(store);
+  return res.json({ ok: true, technicians: store });
+});
+
+app.get('/api/technicians', (req, res) => {
+  const siteName = String(req.query.site ?? '').trim();
+  if (!siteName) return res.status(400).json({ error: 'site is required' });
+  return res.json({ site: siteName, technicians: getManualTechniciansForSite(siteName) });
 });
 
 app.post('/api/submit', (req, res) => {
