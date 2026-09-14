@@ -26,9 +26,17 @@ const allowedMimeTypes = new Set([
 ]);
 
 const TECHNICIAN_GROUPS_BY_SITE = {
-  'Motorad Israel': ['IL IT Support', 'IL Priority Support'],
-  'Motorad Germany': ['IL IT Support', 'IL Priority Support']
+  'Motorad Israel': {
+    priority: 'IL Priority Support',
+    default: 'IL IT Support'
+  },
+  'Motorad Germany': {
+    priority: 'IL Priority Support',
+    default: 'IL IT Support'
+  }
 };
+
+const PRIORITY_TECHNICIAN_CATEGORY = 'IT - Priority Request/Support';
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -142,11 +150,16 @@ function writeTechnicianStore(store) {
   fs.renameSync(temporaryPath, TECHNICIAN_STORE_PATH);
 }
 
-function getManualTechniciansForSite(siteName) {
-  const groups = TECHNICIAN_GROUPS_BY_SITE[siteName] || [];
+function getManualTechniciansForSite(siteName, categoryName) {
+  const siteGroups = TECHNICIAN_GROUPS_BY_SITE[siteName];
+  if (!siteGroups) return [];
+
+  const selectedGroup = categoryName === PRIORITY_TECHNICIAN_CATEGORY
+    ? siteGroups.priority
+    : siteGroups.default;
+
   const store = readTechnicianStore();
-  const names = groups.flatMap((group) => store[group] || []);
-  return [...new Set(names.map((name) => String(name).trim()).filter(Boolean))]
+  return [...new Set((store[selectedGroup] || []).map((name) => String(name).trim()).filter(Boolean))]
     .sort((left, right) => left.localeCompare(right))
     .map((name) => ({ name }));
 }
@@ -256,8 +269,20 @@ app.delete('/api/admin/technicians', requireAdmin, (req, res) => {
 
 app.get('/api/technicians', (req, res) => {
   const siteName = String(req.query.site ?? '').trim();
+  const categoryName = String(req.query.category ?? '').trim();
   if (!siteName) return res.status(400).json({ error: 'site is required' });
-  return res.json({ site: siteName, technicians: getManualTechniciansForSite(siteName) });
+
+  const siteGroups = TECHNICIAN_GROUPS_BY_SITE[siteName];
+  const selectedGroup = siteGroups
+    ? (categoryName === PRIORITY_TECHNICIAN_CATEGORY ? siteGroups.priority : siteGroups.default)
+    : null;
+
+  return res.json({
+    site: siteName,
+    category: categoryName,
+    group: selectedGroup,
+    technicians: getManualTechniciansForSite(siteName, categoryName)
+  });
 });
 
 app.post('/api/submit', (req, res) => {
