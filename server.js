@@ -97,7 +97,103 @@ async function getAccessToken() {
   return response.data.access_token;
 }
 
+function sameName(left, right) {
+  return String(left ?? '').trim().toLowerCase() === String(right ?? '').trim().toLowerCase();
+}
+
+function technicianSiteNames(technician) {
+  const values = [];
+  const candidates = [technician.site, technician.sites, technician.site_name];
+
+  candidates.forEach((candidate) => {
+    if (Array.isArray(candidate)) {
+      candidate.forEach((item) => {
+        values.push(typeof item === 'string' ? item : item?.name);
+      });
+    } else if (typeof candidate === 'string') {
+      values.push(candidate);
+    } else if (candidate && typeof candidate === 'object') {
+      values.push(candidate.name);
+    }
+  });
+
+  return values.filter(Boolean);
+}
+
+function isActiveTechnician(technician) {
+  const status = String(technician.status?.name ?? technician.status ?? '').toLowerCase();
+  return technician.deleted !== true && technician.active !== false && !['inactive', 'disabled'].includes(status);
+}
+
+async function getActiveTechniciansForSite(token, siteName) {
+  const allTechnicians = [];
+  const rowCount = 100;
+  let startIndex = 1;
+
+  while (startIndex <= 1000) {
+    const inputData = {
+      list_info: {
+        start_index: startIndex,
+        row_count: rowCount,
+        sort_field: 'name',
+        sort_order: 'asc'
+      }
+    };
+
+    const response = await axios.get(
+      `${SDP_BASE}/app/${PORTAL}/api/v3/technicians`,
+      {
+        params: { input_data: JSON.stringify(inputData) },
+        headers: {
+          Authorization: `Zoho-oauthtoken ${token}`,
+          Accept: 'application/vnd.manageengine.sdp.v3+json'
+        }
+      }
+    );
+
+    const batch = Array.isArray(response.data?.technicians) ? response.data.technicians : [];
+    allTechnicians.push(...batch);
+
+    if (batch.length < rowCount) break;
+    startIndex += batch.length;
+  }
+
+  return allTechnicians
+    .filter((technician) => {
+      if (!isActiveTechnician(technician)) return false;
+      return technicianSiteNames(technician).some((name) => sameName(name, siteName));
+    })
+    .map((technician) => ({
+      id: technician.id ?? null,
+      name: technician.name,
+      email: technician.email_id ?? technician.email ?? null
+    }))
+    .filter((technician) => technician.name)
+    .sort((left, right) => left.name.localeCompare(right.name));
+}
+
 app.use(express.static(path.join(__dirname, 'static')));
+
+app.get('/api/technicians', async (req, res) => {
+  try {
+    const siteName = String(req.query.site ?? '').trim();
+    if (!siteName) {
+      return res.status(400).json({ error: 'site is required' });
+    }
+
+    const token = await getAccessToken();
+    const technicians = await getActiveTechniciansForSite(token, siteName);
+    return res.json({ site: siteName, technicians });
+  } catch (error) {
+    const detail = error.response?.data
+      ? JSON.stringify(error.response.data)
+      : error instanceof Error
+        ? error.message
+        : 'Technician lookup failed';
+    console.error('Technician lookup failed:', detail);
+    return res.status(502).json({ error: 'Unable to load technicians' });
+  }
+});
 
 app.post('/api/submit', (req, res) => {
   upload.any()(req, res, async (uploadError) => {
@@ -114,7 +210,8 @@ app.post('/api/submit', (req, res) => {
         description,
         urgency,
         category,
-        site
+        site,
+        technician
       } = req.body;
 
       const requesterEmail = String(email ?? '').trim().toLowerCase();
@@ -123,6 +220,7 @@ app.post('/api/submit', (req, res) => {
       const ticketUrgency = String(urgency ?? 'Normal').trim();
       const ticketCategory = resolveCategory(category);
       const ticketSite = String(site ?? '').trim();
+      const ticketTechnician = String(technician ?? '').trim();
 
       if (!isValidEmail(requesterEmail)) {
         return res.status(400).json({ error: 'A valid requester email is required' });
@@ -144,6 +242,7 @@ app.post('/api/submit', (req, res) => {
         urgency: ticketUrgency,
         category: ticketCategory,
         site: ticketSite,
+        technician: ticketTechnician || null,
         attachmentCount: Array.isArray(req.files) ? req.files.length : 0
       });
 
@@ -174,6 +273,10 @@ app.post('/api/submit', (req, res) => {
           template: { name: 'Motorad NA Service Request' }
         }
       };
+
+      if (ticketTechnician) {
+        requestPayload.request.technician = { name: ticketTechnician };
+      }
 
       const params = new URLSearchParams({
         input_data: JSON.stringify(requestPayload)
