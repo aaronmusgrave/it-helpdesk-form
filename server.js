@@ -114,6 +114,11 @@ async function getAccessToken() {
 }
 
 const TECHNICIAN_STORE_PATH = process.env.TECHNICIAN_STORE_PATH || path.join(__dirname, 'data', 'technicians.json');
+const EMAIL_RECIPIENT_STORE_PATH = process.env.EMAIL_RECIPIENT_STORE_PATH || path.join(__dirname, 'data', 'email-recipients.json');
+const MS_TENANT_ID = process.env.MS_TENANT_ID || '';
+const MS_CLIENT_ID = process.env.MS_CLIENT_ID || '';
+const MS_CLIENT_SECRET = process.env.MS_CLIENT_SECRET || '';
+const MS_MAILBOX = process.env.MS_MAILBOX || '';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 const ADMIN_SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || ADMIN_PASSWORD;
 
@@ -141,6 +146,35 @@ function readTechnicianStore() {
   } catch {
     return { ...DEFAULT_TECHNICIANS };
   }
+}
+
+function ensureEmailRecipientStore() {
+  const directory = path.dirname(EMAIL_RECIPIENT_STORE_PATH);
+  fs.mkdirSync(directory, { recursive: true });
+  if (!fs.existsSync(EMAIL_RECIPIENT_STORE_PATH)) {
+    fs.writeFileSync(EMAIL_RECIPIENT_STORE_PATH, JSON.stringify([], null, 2));
+  }
+}
+
+function readEmailRecipients() {
+  ensureEmailRecipientStore();
+  try {
+    const parsed = JSON.parse(fs.readFileSync(EMAIL_RECIPIENT_STORE_PATH, 'utf8'));
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeEmailRecipients(recipients) {
+  ensureEmailRecipientStore();
+  const temporaryPath = `${EMAIL_RECIPIENT_STORE_PATH}.tmp`;
+  fs.writeFileSync(temporaryPath, JSON.stringify(recipients, null, 2));
+  fs.renameSync(temporaryPath, EMAIL_RECIPIENT_STORE_PATH);
+}
+
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value ?? '').trim());
 }
 
 function writeTechnicianStore(store) {
@@ -267,6 +301,33 @@ app.delete('/api/admin/technicians', requireAdmin, (req, res) => {
   return res.json({ ok: true, technicians: store });
 });
 
+app.get('/api/admin/recipients', requireAdmin, (req, res) => {
+  return res.json({ recipients: readEmailRecipients() });
+});
+
+app.post('/api/admin/recipients', requireAdmin, (req, res) => {
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ error: 'A valid email address is required' });
+  }
+
+  const recipients = readEmailRecipients();
+  if (!recipients.includes(email)) {
+    recipients.push(email);
+    recipients.sort();
+    writeEmailRecipients(recipients);
+  }
+
+  return res.json({ ok: true, recipients });
+});
+
+app.delete('/api/admin/recipients', requireAdmin, (req, res) => {
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  const recipients = readEmailRecipients().filter((existing) => existing !== email);
+  writeEmailRecipients(recipients);
+  return res.json({ ok: true, recipients });
+});
+
 app.get('/api/technicians', (req, res) => {
   const siteName = String(req.query.site ?? '').trim();
   const categoryName = String(req.query.category ?? '').trim();
@@ -282,6 +343,109 @@ app.get('/api/technicians', (req, res) => {
     category: categoryName,
     group: selectedGroup,
     technicians: getManualTechniciansForSite(siteName, categoryName)
+  });
+});
+
+async function getMicrosoftGraphToken() {
+  const required = [MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET];
+  if (required.some((value) => !value)) {
+    throw new Error('Microsoft Graph email configuration is incomplete');
+  }
+
+  const body = new URLSearchParams({
+    client_id: MS_CLIENT_ID,
+    client_secret: MS_CLIENT_SECRET,
+    scope: 'https://graph.microsoft.com/.default',
+    grant_type: 'client_credentials'
+  });
+
+  const response = await axios.post(
+    `https://login.microsoftonline.com/${encodeURIComponent(MS_TENANT_ID)}/oauth2/v2.0/token`,
+    body.toString(),
+    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+  );
+
+  if (!response.data?.access_token) throw new Error('Microsoft Graph token request failed');
+  return response.data.access_token;
+}
+
+async function sendWebsiteIssueEmail({ issueType, requesterEmail, description, urgency, files }) {
+  const recipients = readEmailRecipients();
+  if (!recipients.length) throw new Error('No website issue email recipients are configured');
+  if (!MS_MAILBOX) throw new Error('MS_MAILBOX is not configured');
+
+  const token = await getMicrosoftGraphToken();
+  const safeDescription = escapeHtml(description).replace(/\n/g, '<br>');
+  const attachments = files.map((file) => ({
+    '@odata.type': '#microsoft.graph.fileAttachment',
+    name: file.originalname,
+    contentType: file.mimetype,
+    contentBytes: file.buffer.toString('base64')
+  }));
+
+  const message = {
+    subject: `[Website Improvement] ${issueType}`,
+    body: {
+      contentType: 'HTML',
+      content:
+        `<h2>MotoRad Website Improvement Suggestion</h2>` +
+        `<p><b>Submitted by:</b> ${escapeHtml(requesterEmail)}<br>` +
+        `<b>Issue type:</b> ${escapeHtml(issueType)}<br>` +
+        `<b>Urgency:</b> ${escapeHtml(urgency)}</p>` +
+        `<p><b>Description:</b><br>${safeDescription}</p>`
+    },
+    toRecipients: recipients.map((address) => ({ emailAddress: { address } })),
+    attachments
+  };
+
+  await axios.post(
+    `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(MS_MAILBOX)}/sendMail`,
+    { message, saveToSentItems: true },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+
+  return recipients.length;
+}
+
+app.post('/api/website-issue', (req, res) => {
+  upload.any()(req, res, async (uploadError) => {
+    if (uploadError) {
+      return res.status(400).json({ error: uploadError.message || 'Invalid upload' });
+    }
+
+    try {
+      const issueType = String(req.body?.issueType ?? '').trim();
+      const requesterEmail = String(req.body?.email ?? '').trim().toLowerCase();
+      const description = String(req.body?.description ?? '').trim();
+      const urgency = String(req.body?.urgency ?? 'Normal').trim();
+      const files = Array.isArray(req.files) ? req.files : [];
+
+      if (!issueType) return res.status(400).json({ error: 'An issue type is required' });
+      if (!isValidEmail(requesterEmail)) return res.status(400).json({ error: 'A valid email is required' });
+      if (!description) return res.status(400).json({ error: 'A description is required' });
+      if (!['High', 'Normal', 'Low'].includes(urgency)) return res.status(400).json({ error: 'Invalid urgency' });
+
+      const recipientCount = await sendWebsiteIssueEmail({
+        issueType,
+        requesterEmail,
+        description,
+        urgency,
+        files
+      });
+
+      return res.json({ success: true, recipient_count: recipientCount });
+    } catch (error) {
+      const detail = error.response?.data
+        ? JSON.stringify(error.response.data)
+        : error instanceof Error ? error.message : 'Website issue email failed';
+      console.error('Website issue email failed:', detail);
+      return res.status(502).json({ error: 'Website issue email failed' });
+    }
   });
 });
 
