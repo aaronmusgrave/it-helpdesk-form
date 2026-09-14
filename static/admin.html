@@ -77,6 +77,20 @@
           <button class="secondary" onclick="logout()">Sign out</button>
         </div>
       </section>
+
+      <section class="card">
+        <h2>Website issue email recipients</h2>
+        <p class="muted" style="margin-bottom:14px">Website issue reports will be emailed to every address listed here.</p>
+        <div class="row">
+          <div class="field" style="grid-column: span 2">
+            <label for="recipientEmail">Recipient email address</label>
+            <input id="recipientEmail" type="email" placeholder="web-team@motorad.com" />
+          </div>
+          <button class="primary" onclick="addRecipient()">Add recipient</button>
+        </div>
+        <div id="recipientMessage" class="message"></div>
+        <div id="recipients" style="margin-top:12px"></div>
+      </section>
     </section>
   </main>
 
@@ -108,6 +122,7 @@
       loginCard.classList.add('hidden');
       adminContent.classList.remove('hidden');
       await loadTechnicians();
+      await loadRecipients();
     }
 
     async function loadTechnicians() {
@@ -196,6 +211,78 @@
       }
       setMessage(adminMessage, 'Technician removed.', 'success');
       renderLists(data.technicians);
+    }
+
+
+    async function loadRecipients() {
+      const response = await fetch('/api/admin/recipients', { credentials: 'same-origin' });
+      if (response.status === 401) return;
+      const data = await response.json();
+      if (!response.ok) {
+        setMessage(document.getElementById('recipientMessage'), data.error || 'Could not load recipients.', 'error');
+        return;
+      }
+      renderRecipients(data.recipients || []);
+    }
+
+    function renderRecipients(recipients) {
+      const container = document.getElementById('recipients');
+      container.innerHTML = '';
+      if (!recipients.length) {
+        container.innerHTML = '<div class="muted">No email recipients configured.</div>';
+        return;
+      }
+      recipients.forEach(email => {
+        const row = document.createElement('div');
+        row.className = 'tech';
+        const label = document.createElement('span');
+        label.textContent = email;
+        const remove = document.createElement('button');
+        remove.className = 'danger';
+        remove.textContent = 'Remove';
+        remove.onclick = () => removeRecipient(email);
+        row.appendChild(label);
+        row.appendChild(remove);
+        container.appendChild(row);
+      });
+    }
+
+    async function addRecipient() {
+      const input = document.getElementById('recipientEmail');
+      const email = input.value.trim();
+      const response = await fetch('/api/admin/recipients', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await response.json();
+      const recipientMessage = document.getElementById('recipientMessage');
+      if (!response.ok) {
+        setMessage(recipientMessage, data.error || 'Could not add recipient.', 'error');
+        return;
+      }
+      input.value = '';
+      setMessage(recipientMessage, 'Recipient added.', 'success');
+      renderRecipients(data.recipients);
+    }
+
+    async function removeRecipient(email) {
+      if (!confirm('Remove ' + email + ' from website issue notifications?')) return;
+      const response = await fetch('/api/admin/recipients', {
+        method: 'DELETE',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await response.json();
+      const recipientMessage = document.getElementById('recipientMessage');
+      if (!response.ok) {
+        setMessage(recipientMessage, data.error || 'Could not remove recipient.', 'error');
+        return;
+      }
+      setMessage(recipientMessage, 'Recipient removed.', 'success');
+      renderRecipients(data.recipients);
     }
 
     async function logout() {
