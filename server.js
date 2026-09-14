@@ -22,6 +22,11 @@ const allowedMimeTypes = new Set([
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 ]);
 
+const TECHNICIAN_GROUPS_BY_SITE = {
+  'Motorad Israel': ['IL IT Support', 'IL Priority Support'],
+  'Motorad Germany': ['IL IT Support', 'IL Priority Support']
+};
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
@@ -101,9 +106,16 @@ function sameName(left, right) {
   return String(left ?? '').trim().toLowerCase() === String(right ?? '').trim().toLowerCase();
 }
 
-function technicianSiteNames(technician) {
+function technicianGroupNames(technician) {
   const values = [];
-  const candidates = [technician.site, technician.sites, technician.site_name];
+  const candidates = [
+    technician.group,
+    technician.groups,
+    technician.support_group,
+    technician.support_groups,
+    technician.group_name,
+    technician.group_names
+  ];
 
   candidates.forEach((candidate) => {
     if (Array.isArray(candidate)) {
@@ -158,10 +170,14 @@ async function getActiveTechniciansForSite(token, siteName) {
     startIndex += batch.length;
   }
 
+  const allowedGroups = TECHNICIAN_GROUPS_BY_SITE[siteName] || [];
+
   return allTechnicians
     .filter((technician) => {
       if (!isActiveTechnician(technician)) return false;
-      return technicianSiteNames(technician).some((name) => sameName(name, siteName));
+      return technicianGroupNames(technician).some((groupName) =>
+        allowedGroups.some((allowedGroup) => sameName(groupName, allowedGroup))
+      );
     })
     .map((technician) => ({
       id: technician.id ?? null,
