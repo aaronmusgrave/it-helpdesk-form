@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Help Desk Technician Admin</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f0f4f8; color: #1f2937; }
+    .header { background: #1a56db; color: #fff; padding: 22px; text-align: center; }
+    .container { max-width: 760px; margin: 24px auto; padding: 0 16px; }
+    .card { background: #fff; border-radius: 14px; padding: 22px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,.07); }
+    h1 { margin: 0; font-size: 22px; }
+    h2 { margin: 0 0 16px; font-size: 18px; color: #1e3a5f; }
+    label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+    input, select { width: 100%; padding: 11px 12px; border: 2px solid #e5e7eb; border-radius: 9px; font-size: 15px; background: #f9fafb; }
+    input:focus, select:focus { outline: none; border-color: #1a56db; background: #fff; }
+    .field { margin-bottom: 14px; }
+    button { border: 0; border-radius: 9px; padding: 11px 16px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .primary { background: #1a56db; color: #fff; }
+    .secondary { background: #e5e7eb; color: #374151; }
+    .danger { background: #fee2e2; color: #991b1b; padding: 7px 10px; font-size: 13px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end; }
+    .group { border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+    .group h3 { margin: 0 0 10px; font-size: 15px; color: #1e3a5f; }
+    .tech { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid #f1f5f9; }
+    .muted { color: #6b7280; font-size: 13px; }
+    .message { min-height: 20px; margin-top: 10px; font-size: 13px; }
+    .error { color: #b91c1c; }
+    .success { color: #047857; }
+    .hidden { display: none !important; }
+    @media (max-width: 620px) { .row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>Help Desk Technician Admin</h1>
+    <div class="muted" style="color:#dbeafe;margin-top:6px">Maintain the Israel and Germany technician lists</div>
+  </header>
+
+  <main class="container">
+    <section class="card" id="loginCard">
+      <h2>Admin sign in</h2>
+      <div class="field">
+        <label for="password">Admin password</label>
+        <input id="password" type="password" autocomplete="current-password" />
+      </div>
+      <button class="primary" onclick="login()">Sign in</button>
+      <div id="loginMessage" class="message error"></div>
+    </section>
+
+    <section class="hidden" id="adminContent">
+      <section class="card">
+        <h2>Add technician</h2>
+        <div class="row">
+          <div class="field">
+            <label for="group">Technician group</label>
+            <select id="group">
+              <option>IL IT Support</option>
+              <option>IL Priority Support</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="name">Technician display name</label>
+            <input id="name" type="text" placeholder="For example: Jane Smith" />
+          </div>
+          <button class="primary" onclick="addTechnician()">Add</button>
+        </div>
+        <div id="adminMessage" class="message"></div>
+      </section>
+
+      <section class="card">
+        <h2>Current technician lists</h2>
+        <div id="lists"></div>
+        <div style="margin-top:16px;display:flex;gap:8px">
+          <button class="secondary" onclick="loadTechnicians()">Refresh</button>
+          <button class="secondary" onclick="logout()">Sign out</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const loginCard = document.getElementById('loginCard');
+    const adminContent = document.getElementById('adminContent');
+    const loginMessage = document.getElementById('loginMessage');
+    const adminMessage = document.getElementById('adminMessage');
+
+    function setMessage(element, text, kind) {
+      element.textContent = text || '';
+      element.className = 'message ' + (kind || '');
+    }
+
+    async function login() {
+      setMessage(loginMessage, '');
+      const password = document.getElementById('password').value;
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setMessage(loginMessage, data.error || 'Sign in failed.', 'error');
+        return;
+      }
+      loginCard.classList.add('hidden');
+      adminContent.classList.remove('hidden');
+      await loadTechnicians();
+    }
+
+    async function loadTechnicians() {
+      const response = await fetch('/api/admin/technicians', { credentials: 'same-origin' });
+      if (response.status === 401) {
+        loginCard.classList.remove('hidden');
+        adminContent.classList.add('hidden');
+        return;
+      }
+      const data = await response.json();
+      if (!response.ok) {
+        setMessage(adminMessage, data.error || 'Could not load technicians.', 'error');
+        return;
+      }
+      renderLists(data.technicians || {});
+    }
+
+    function renderLists(lists) {
+      const container = document.getElementById('lists');
+      container.innerHTML = '';
+      Object.keys(lists).forEach(group => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'group';
+        const title = document.createElement('h3');
+        title.textContent = group;
+        wrapper.appendChild(title);
+        const names = lists[group] || [];
+        if (!names.length) {
+          const empty = document.createElement('div');
+          empty.className = 'muted';
+          empty.textContent = 'No technicians configured.';
+          wrapper.appendChild(empty);
+        }
+        names.forEach(name => {
+          const row = document.createElement('div');
+          row.className = 'tech';
+          const label = document.createElement('span');
+          label.textContent = name;
+          const remove = document.createElement('button');
+          remove.className = 'danger';
+          remove.textContent = 'Remove';
+          remove.onclick = () => removeTechnician(group, name);
+          row.appendChild(label);
+          row.appendChild(remove);
+          wrapper.appendChild(row);
+        });
+        container.appendChild(wrapper);
+      });
+    }
+
+    async function addTechnician() {
+      const group = document.getElementById('group').value;
+      const name = document.getElementById('name').value.trim();
+      if (!name) {
+        setMessage(adminMessage, 'Enter a technician name.', 'error');
+        return;
+      }
+      const response = await fetch('/api/admin/technicians', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ group, name })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setMessage(adminMessage, data.error || 'Could not add technician.', 'error');
+        return;
+      }
+      document.getElementById('name').value = '';
+      setMessage(adminMessage, 'Technician added.', 'success');
+      renderLists(data.technicians);
+    }
+
+    async function removeTechnician(group, name) {
+      if (!confirm('Remove ' + name + ' from ' + group + '?')) return;
+      const response = await fetch('/api/admin/technicians', {
+        method: 'DELETE',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ group, name })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setMessage(adminMessage, data.error || 'Could not remove technician.', 'error');
+        return;
+      }
+      setMessage(adminMessage, 'Technician removed.', 'success');
+      renderLists(data.technicians);
+    }
+
+    async function logout() {
+      await fetch('/api/admin/logout', { method: 'POST', credentials: 'same-origin' });
+      location.reload();
+    }
+  </script>
+</body>
+</html>
