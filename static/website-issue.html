@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MotoRad Website Improvement Suggestion</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f0f4f8; color: #1f2937; }
+    .header { background: #1a56db; color: #fff; padding: 22px; text-align: center; }
+    .header h1 { margin: 0; font-size: 22px; }
+    .header p { margin: 7px 0 0; font-size: 13px; opacity: .88; }
+    .container { max-width: 700px; margin: 22px auto; padding: 0 16px; }
+    .card { background: #fff; border-radius: 14px; padding: 22px; box-shadow: 0 2px 10px rgba(0,0,0,.07); }
+    h2 { margin: 0 0 20px; color: #1e3a5f; font-size: 19px; }
+    .field { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 7px; font-weight: 600; font-size: 14px; color: #374151; }
+    .required { color: #dc2626; }
+    input[type="email"], textarea, select { width: 100%; border: 2px solid #e5e7eb; border-radius: 9px; padding: 12px 14px; font: inherit; background: #f9fafb; }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: #1a56db; background: #fff; }
+    textarea { min-height: 140px; resize: vertical; line-height: 1.5; }
+    .upload-box { border: 2px dashed #cbd5e1; border-radius: 10px; padding: 16px; background: #f8fafc; }
+    .upload-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    button { border: 0; border-radius: 9px; padding: 11px 15px; font: inherit; font-weight: 600; cursor: pointer; }
+    .primary { background: #1a56db; color: #fff; }
+    .primary:hover { background: #1547c0; }
+    .secondary { background: #e5e7eb; color: #374151; }
+    .camera { margin-top: 14px; display: none; }
+    .camera video { width: 100%; max-height: 300px; border-radius: 9px; background: #111827; }
+    .preview-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .preview { position: relative; width: 86px; height: 86px; }
+    .preview img { width: 86px; height: 86px; object-fit: cover; border-radius: 8px; border: 1px solid #d1d5db; }
+    .preview button { position: absolute; top: -7px; right: -7px; width: 22px; height: 22px; padding: 0; border-radius: 50%; background: #dc2626; color: #fff; font-size: 13px; }
+    .selected-files { margin-top: 8px; color: #6b7280; font-size: 13px; }
+    .actions { display: flex; gap: 10px; margin-top: 24px; }
+    .actions button { flex: 1; }
+    .message { min-height: 20px; margin-top: 14px; font-size: 14px; }
+    .error { color: #b91c1c; }
+    .success { color: #047857; }
+    .hidden { display: none !important; }
+    .back { display: inline-block; margin-top: 14px; color: #dbeafe; font-size: 13px; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>MotoRad Website Improvement Suggestion</h1>
+    <p>Report website issues and suggest improvements</p>
+    <a class="back" href="/">← Back to Help Desk</a>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Website issue report</h2>
+
+      <div class="field">
+        <label for="issueType">1. What issue are you experiencing? <span class="required">*</span></label>
+        <select id="issueType">
+          <option value="">Select an issue type</option>
+          <option>Broken or misplaced link</option>
+          <option>Grammar / Spelling / Translation Problems</option>
+          <option>Missing Information</option>
+          <option>New Content Idea</option>
+          <option>Product Data (photos, attributes, application info etc…)</option>
+          <option>Search Function</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="email">2. Email of person reporting issue <span class="required">*</span></label>
+        <input id="email" type="email" placeholder="name@motorad.com" autocomplete="email" />
+      </div>
+
+      <div class="field">
+        <label for="description">3. Description of issue found <span class="required">*</span></label>
+        <textarea id="description" placeholder="Describe the page, link, product, search term, or content that needs attention."></textarea>
+      </div>
+
+      <div class="field">
+        <label for="urgency">4. Urgency <span class="required">*</span></label>
+        <select id="urgency">
+          <option value="">Select urgency</option>
+          <option>High</option>
+          <option selected>Normal</option>
+          <option>Low</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Picture upload</label>
+        <div class="upload-box">
+          <div class="upload-actions">
+            <button type="button" class="secondary" onclick="document.getElementById('pictureInput').click()">Choose File(s)</button>
+            <button type="button" class="secondary" onclick="openCamera()">Capture image using webcam</button>
+          </div>
+          <input id="pictureInput" type="file" accept="image/*" multiple hidden />
+          <div id="camera" class="camera">
+            <video id="video" autoplay playsinline></video>
+            <div class="upload-actions" style="margin-top:8px">
+              <button type="button" class="primary" onclick="captureImage()">Capture</button>
+              <button type="button" class="secondary" onclick="closeCamera()">Close camera</button>
+            </div>
+          </div>
+          <div id="picturePreview" class="preview-list"></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>File upload</label>
+        <div class="upload-box">
+          <button type="button" class="secondary" onclick="document.getElementById('fileInput').click()">Choose File</button>
+          <input id="fileInput" type="file" multiple hidden />
+          <div id="fileNames" class="selected-files">No files selected.</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="secondary" onclick="window.location.href='/'">Cancel</button>
+        <button type="button" class="primary" id="submitButton" onclick="submitIssue()">Submit</button>
+      </div>
+      <div id="message" class="message"></div>
+    </section>
+  </main>
+
+  <script>
+    const pictureInput = document.getElementById('pictureInput');
+    const fileInput = document.getElementById('fileInput');
+    const picturePreview = document.getElementById('picturePreview');
+    const fileNames = document.getElementById('fileNames');
+    const message = document.getElementById('message');
+    const submitButton = document.getElementById('submitButton');
+    let pictureFiles = [];
+    let cameraStream = null;
+
+    pictureInput.addEventListener('change', () => {
+      pictureFiles = pictureFiles.concat(Array.from(pictureInput.files || []));
+      renderPictures();
+      pictureInput.value = '';
+    });
+
+    fileInput.addEventListener('change', () => {
+      const files = Array.from(fileInput.files || []);
+      fileNames.textContent = files.length ? files.map(file => file.name).join(', ') : 'No files selected.';
+    });
+
+    function renderPictures() {
+      picturePreview.innerHTML = '';
+      pictureFiles.forEach((file, index) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'preview';
+        const image = document.createElement('img');
+        image.src = URL.createObjectURL(file);
+        image.alt = file.name;
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.textContent = '×';
+        remove.onclick = () => { pictureFiles.splice(index, 1); renderPictures(); };
+        wrapper.appendChild(image);
+        wrapper.appendChild(remove);
+        picturePreview.appendChild(wrapper);
+      });
+    }
+
+    async function openCamera() {
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        document.getElementById('video').srcObject = cameraStream;
+        document.getElementById('camera').style.display = 'block';
+      } catch (error) {
+        setMessage('Camera access was unavailable. You can still upload an image file.', true);
+      }
+    }
+
+    function closeCamera() {
+      if (cameraStream) cameraStream.getTracks().forEach(track => track.stop());
+      cameraStream = null;
+      document.getElementById('camera').style.display = 'none';
+    }
+
+    function captureImage() {
+      const video = document.getElementById('video');
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(blob => {
+        if (blob) {
+          pictureFiles.push(new File([blob], `webcam-${Date.now()}.jpg`, { type: 'image/jpeg' }));
+          renderPictures();
+        }
+      }, 'image/jpeg', 0.9);
+    }
+
+    function setMessage(text, isError) {
+      message.textContent = text || '';
+      message.className = 'message ' + (isError ? 'error' : 'success');
+    }
+
+    async function submitIssue() {
+      setMessage('', false);
+      const issueType = document.getElementById('issueType').value;
+      const email = document.getElementById('email').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const urgency = document.getElementById('urgency').value;
+
+      if (!issueType || !email || !description || !urgency) {
+        setMessage('Please complete all required fields.', true);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('issueType', issueType);
+      formData.append('email', email);
+      formData.append('description', description);
+      formData.append('urgency', urgency);
+      pictureFiles.forEach(file => formData.append('pictures', file));
+      Array.from(fileInput.files || []).forEach(file => formData.append('files', file));
+
+      submitButton.disabled = true;
+      submitButton.textContent = 'Submitting...';
+      try {
+        const response = await fetch('/api/website-issue', { method: 'POST', body: formData });
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.error || 'Submission failed');
+        closeCamera();
+        document.querySelector('.card').innerHTML = `
+          <div style="text-align:center;padding:34px 10px">
+            <div style="font-size:60px">✅</div>
+            <h2 style="color:#047857;margin:12px 0">Website issue sent</h2>
+            <p style="color:#6b7280">Your report was emailed to the website support recipients.</p>
+            <button class="primary" onclick="window.location.href='/'">Return to Help Desk</button>
+          </div>`;
+      } catch (error) {
+        setMessage(error.message || 'Submission failed. Please try again.', true);
+        submitButton.disabled = false;
+        submitButton.textContent = 'Submit';
+      }
+    }
+  </script>
+</body>
+</html>
