@@ -66,6 +66,8 @@
     .spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.35); border-top-color: white; border-radius: 50%; animation: spin 0.75s linear infinite; vertical-align: middle; margin-right: 8px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .admin-link { color: #dbeafe; font-size: 12px; margin-left: 8px; }
+    .website-issue-link { display: block; text-align: center; background: #fff; color: #1a56db; border: 2px solid #bfdbfe; border-radius: 10px; padding: 12px; margin: 14px 0; text-decoration: none; font-weight: 600; }
+    .website-issue-link:hover { background: #eff6ff; }
     .hidden { display: none !important; }
   </style>
 </head>
@@ -77,6 +79,7 @@
 </div>
 
 <div class="container">
+  <a class="website-issue-link" href="/website-issue.html">Report a Website Issue</a>
   <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:25%"></div></div>
   <div class="step-label" id="stepLabel">Step 1 of 4</div>
 
