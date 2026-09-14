@@ -179,6 +179,14 @@
       <label>Please Explain the Issue <span class="sublabel">Include error messages, when it started, etc.</span></label>
       <textarea id="description" placeholder="Describe what's happening in as much detail as possible..."></textarea>
     </div>
+    <div class="field hidden" id="technicianField">
+      <label>Assign to Technician <span class="sublabel">Required for Motorad Israel and Motorad Germany</span></label>
+      <select id="technician" disabled>
+        <option value="">Loading active technicians...</option>
+      </select>
+      <div class="sublabel" id="technicianStatus"></div>
+      <div class="error-msg" id="err-technician">Please select a technician.</div>
+    </div>
     <div class="field">
       <label>Attach a Photo or File <span class="sublabel">Optional</span></label>
       <div class="photo-area" onclick="document.getElementById('photoInput').click()">
@@ -217,6 +225,7 @@
   let selectedUrgency  = "Normal";
   let selectedTicketType = "";
   let photoFiles = [];
+  const TECHNICIAN_SITES = new Set(["Motorad Israel", "Motorad Germany"]);
 
   const DEPT_PLANT = [
     "USA - Conveyance","USA - Custom Pack/Unit Pick","USA - High Speed Packaging",
@@ -289,10 +298,57 @@
     }
   }
 
+  async function loadTechniciansForSite() {
+    var site = document.getElementById("site").value;
+    var field = document.getElementById("technicianField");
+    var select = document.getElementById("technician");
+    var status = document.getElementById("technicianStatus");
+
+    if (!TECHNICIAN_SITES.has(site)) {
+      field.classList.add("hidden");
+      select.innerHTML = '<option value="">— No technician selection required —</option>';
+      select.value = "";
+      select.disabled = true;
+      status.textContent = "";
+      return;
+    }
+
+    field.classList.remove("hidden");
+    select.disabled = true;
+    select.innerHTML = '<option value="">Loading active technicians...</option>';
+    status.textContent = "Loading technicians associated with " + site + "...";
+
+    try {
+      var resp = await fetch("/api/technicians?site=" + encodeURIComponent(site));
+      var data = await resp.json();
+      if (!resp.ok || data.error) throw new Error(data.error || "Could not load technicians");
+
+      select.innerHTML = '<option value="">— Select a technician —</option>';
+      (data.technicians || []).forEach(function(tech) {
+        var opt = document.createElement("option");
+        opt.value = tech.name;
+        opt.textContent = tech.name;
+        select.appendChild(opt);
+      });
+
+      select.disabled = !(data.technicians || []).length;
+      status.textContent = (data.technicians || []).length
+        ? "Showing active technicians associated with " + site + "."
+        : "No active technicians were found for this site.";
+    } catch (err) {
+      select.innerHTML = '<option value="">Unable to load technicians</option>';
+      select.disabled = true;
+      status.textContent = "Technician list could not be loaded. Please try again.";
+    }
+  }
+
   function goStep(n) {
     if (n > 1 && !validateStep(n - 1)) return;
     if (n === 3) updateCategories();
-    if (n === 4) buildReview();
+    if (n === 4) {
+      buildReview();
+      loadTechniciansForSite();
+    }
     for (var i = 1; i <= 4; i++) {
       var el = document.getElementById("step" + i);
       if (el) el.classList.add("hidden");
@@ -332,6 +388,11 @@
     if (n === 4) {
       var sub = document.getElementById("subject");
       if (sub.value.trim()) { hide("err-subject", sub); } else { show("err-subject", sub); }
+      var techField = document.getElementById("technicianField");
+      if (!techField.classList.contains("hidden")) {
+        var tech = document.getElementById("technician");
+        if (tech.value) { hide("err-technician", tech); } else { show("err-technician", tech); }
+      }
     }
     return ok;
   }
@@ -372,6 +433,8 @@
       ["⚡ Urgency",      selectedUrgency],
     ];
     if (selectedTicketType === "IT") rows.push(["🔧 Category", cat]);
+    var technician = document.getElementById("technician").value;
+    if (technician) rows.push(["🧑‍💻 Technician", technician]);
     rows.push(["📝 Subject", document.getElementById("subject").value]);
     document.getElementById("reviewBox").innerHTML = rows.map(function(r) {
       return "<strong>" + r[0] + ":</strong> " + r[1];
@@ -389,6 +452,7 @@
     var officeType  = document.getElementById("officeType").value;
     var dept        = document.getElementById("department").value;
     var category    = selectedTicketType === "IT" ? document.getElementById("category").value : selectedTicketType;
+    var technician  = document.getElementById("technician").value;
     var subject     = document.getElementById("subject").value.trim();
     var description = document.getElementById("description").value.trim();
 
@@ -411,6 +475,7 @@
       formData.append("urgency",     selectedUrgency);
       formData.append("category",    category);
       formData.append("site",        site);
+      if (technician) formData.append("technician", technician);
       photoFiles.forEach(function(f, i) { formData.append("photo_" + i, f); });
 
       var resp = await fetch(PROXY_URL, { method: "POST", body: formData });
