@@ -317,10 +317,19 @@
     field.classList.remove("hidden");
     select.disabled = true;
     select.innerHTML = '<option value="">Loading active technicians...</option>';
-    status.textContent = "Loading technicians from IL IT Support and IL Priority Support...";
+
+    var categoryElement = document.getElementById("category");
+    var category = categoryElement ? categoryElement.value : selectedTicketType;
+    var group = category === "IT - Priority Request/Support"
+      ? "IL Priority Support"
+      : "IL IT Support";
+    status.textContent = "Loading active technicians from " + group + "...";
 
     try {
-      var resp = await fetch("/api/technicians?site=" + encodeURIComponent(site));
+      var resp = await fetch(
+        "/api/technicians?site=" + encodeURIComponent(site) +
+        "&category=" + encodeURIComponent(category)
+      );
       var data = await resp.json();
       if (!resp.ok || data.error) throw new Error(data.error || "Could not load technicians");
 
@@ -334,8 +343,8 @@
 
       select.disabled = !(data.technicians || []).length;
       status.textContent = (data.technicians || []).length
-        ? "Showing active technicians from IL IT Support and IL Priority Support."
-        : "No active technicians were found for this site.";
+        ? "Showing active technicians from " + (data.group || group) + "."
+        : "No active technicians were found in " + (data.group || group) + ".";
     } catch (err) {
       select.innerHTML = '<option value="">Unable to load technicians</option>';
       select.disabled = true;
