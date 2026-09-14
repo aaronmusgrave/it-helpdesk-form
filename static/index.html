@@ -237,7 +237,7 @@
     "IT - Software Installation / Support"
   ];
   const CAT_OFFICE = [
-    "IT - Alarm System Code/Key FOB","IT - Catalog Software JNP, WebCat",
+    "IT - Alarm System Code/Key FOB","IT - Catalog Software JNP,WebCat",
     "IT - Computer Support","IT - EDI Support","IT - Employee Add/Terminate",
     "IT - FortiClient VPN","IT - Network Cable/Device Support",
     "IT - Network Connection Issues (Wired/Wireless)","IT - Network Drive/File Permissions",
@@ -390,13 +390,16 @@
     var subject     = document.getElementById("subject").value.trim();
     var description = document.getElementById("description").value.trim();
 
-    var fullDescription =
-      "<b>Ticket Type:</b> " + selectedTicketType + "<br>" +
-      "<b>Site:</b> " + site + "<br>" +
-      "<b>Office/Plant:</b> " + officeType + "<br>" +
-      "<b>Department:</b> " + dept + "<br>" +
-      "<b>Urgency:</b> " + selectedUrgency + "<br><br>" +
-      "<b>Issue Description:</b><br>" + description.replace(/\n/g, "<br>");
+    var fullDescription = [
+      "Ticket Type: " + selectedTicketType,
+      "Site: " + site,
+      "Office/Plant: " + officeType,
+      "Department: " + dept,
+      "Urgency: " + selectedUrgency,
+      "",
+      "Issue Description:",
+      description
+    ].join("\n");
 
     try {
       var formData = new FormData();
