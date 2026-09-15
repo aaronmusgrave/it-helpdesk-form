@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const axios = require('axios');
 const FormData = require('form-data');
+const nodemailer = require('nodemailer');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -115,10 +116,11 @@ async function getAccessToken() {
 
 const TECHNICIAN_STORE_PATH = process.env.TECHNICIAN_STORE_PATH || path.join(__dirname, 'data', 'technicians.json');
 const EMAIL_RECIPIENT_STORE_PATH = process.env.EMAIL_RECIPIENT_STORE_PATH || path.join(__dirname, 'data', 'email-recipients.json');
-const MS_TENANT_ID = process.env.MS_TENANT_ID || '';
-const MS_CLIENT_ID = process.env.MS_CLIENT_ID || '';
-const MS_CLIENT_SECRET = process.env.MS_CLIENT_SECRET || '';
-const MS_MAILBOX = process.env.MS_MAILBOX || '';
+const SMTP_HOST = process.env.SMTP_HOST || '';
+const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587', 10);
+const SMTP_USER = process.env.SMTP_USER || '';
+const SMTP_PASSWORD = process.env.SMTP_PASSWORD || '';
+const SMTP_FROM = process.env.SMTP_FROM || '';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 const ADMIN_SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || ADMIN_PASSWORD;
 
@@ -171,10 +173,6 @@ function writeEmailRecipients(recipients) {
   const temporaryPath = `${EMAIL_RECIPIENT_STORE_PATH}.tmp`;
   fs.writeFileSync(temporaryPath, JSON.stringify(recipients, null, 2));
   fs.renameSync(temporaryPath, EMAIL_RECIPIENT_STORE_PATH);
-}
-
-function isValidEmail(value) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value ?? '').trim());
 }
 
 function writeTechnicianStore(store) {
@@ -346,69 +344,51 @@ app.get('/api/technicians', (req, res) => {
   });
 });
 
-async function getMicrosoftGraphToken() {
-  const required = [MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET];
+function createSmtpTransporter() {
+  const required = [SMTP_HOST, SMTP_USER, SMTP_PASSWORD, SMTP_FROM];
   if (required.some((value) => !value)) {
-    throw new Error('Microsoft Graph email configuration is incomplete');
+    throw new Error('SMTP email configuration is incomplete');
   }
 
-  const body = new URLSearchParams({
-    client_id: MS_CLIENT_ID,
-    client_secret: MS_CLIENT_SECRET,
-    scope: 'https://graph.microsoft.com/.default',
-    grant_type: 'client_credentials'
+  return nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: SMTP_PORT === 465,
+    auth: {
+      user: SMTP_USER,
+      pass: SMTP_PASSWORD
+    }
   });
-
-  const response = await axios.post(
-    `https://login.microsoftonline.com/${encodeURIComponent(MS_TENANT_ID)}/oauth2/v2.0/token`,
-    body.toString(),
-    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-  );
-
-  if (!response.data?.access_token) throw new Error('Microsoft Graph token request failed');
-  return response.data.access_token;
 }
 
 async function sendWebsiteIssueEmail({ issueType, requesterEmail, description, urgency, files }) {
   const recipients = readEmailRecipients();
   if (!recipients.length) throw new Error('No website issue email recipients are configured');
-  if (!MS_MAILBOX) throw new Error('MS_MAILBOX is not configured');
 
-  const token = await getMicrosoftGraphToken();
+  const transporter = createSmtpTransporter();
   const safeDescription = escapeHtml(description).replace(/\n/g, '<br>');
   const attachments = files.map((file) => ({
-    '@odata.type': '#microsoft.graph.fileAttachment',
-    name: file.originalname,
-    contentType: file.mimetype,
-    contentBytes: file.buffer.toString('base64')
+    filename: file.originalname,
+    content: file.buffer,
+    contentType: file.mimetype
   }));
 
-  const message = {
+  const htmlContent =
+    `<h2>MotoRad Website Improvement Suggestion</h2>` +
+    `<p><b>Submitted by:</b> ${escapeHtml(requesterEmail)}<br>` +
+    `<b>Issue type:</b> ${escapeHtml(issueType)}<br>` +
+    `<b>Urgency:</b> ${escapeHtml(urgency)}</p>` +
+    `<p><b>Description:</b><br>${safeDescription}</p>`;
+
+  const mailOptions = {
+    from: SMTP_FROM,
+    to: recipients.join(','),
     subject: `[Website Improvement] ${issueType}`,
-    body: {
-      contentType: 'HTML',
-      content:
-        `<h2>MotoRad Website Improvement Suggestion</h2>` +
-        `<p><b>Submitted by:</b> ${escapeHtml(requesterEmail)}<br>` +
-        `<b>Issue type:</b> ${escapeHtml(issueType)}<br>` +
-        `<b>Urgency:</b> ${escapeHtml(urgency)}</p>` +
-        `<p><b>Description:</b><br>${safeDescription}</p>`
-    },
-    toRecipients: recipients.map((address) => ({ emailAddress: { address } })),
+    html: htmlContent,
     attachments
   };
 
-  await axios.post(
-    `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(MS_MAILBOX)}/sendMail`,
-    { message, saveToSentItems: true },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    }
-  );
-
+  await transporter.sendMail(mailOptions);
   return recipients.length;
 }
 
@@ -440,9 +420,7 @@ app.post('/api/website-issue', (req, res) => {
 
       return res.json({ success: true, recipient_count: recipientCount });
     } catch (error) {
-      const detail = error.response?.data
-        ? JSON.stringify(error.response.data)
-        : error instanceof Error ? error.message : 'Website issue email failed';
+      const detail = error instanceof Error ? error.message : 'Website issue email failed';
       console.error('Website issue email failed:', detail);
       return res.status(502).json({ error: 'Website issue email failed' });
     }
@@ -505,7 +483,7 @@ app.post('/api/submit', (req, res) => {
       // Accept both the current plain-text form payload and older submissions
       // that included <b> and <br> markup in the description.
       const plainDescription = ticketDescription
-        .replace(/<br\s*\/?\s*>/gi, '\n')
+        .replace(/<br\s*\/?s*>/gi, '\n')
         .replace(/<\/?b>/gi, '')
         .replace(/&nbsp;/gi, ' ')
         .trim();
@@ -613,3 +591,4 @@ app.post('/api/submit', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
