@@ -470,6 +470,9 @@ app.post('/api/submit', (req, res) => {
       // attachment contents, OAuth tokens, or other ticket details.
       console.log('Received help desk submission', {
         hasRequester: true,
+        requesterDomain: requesterEmail.split('@')[1],
+        requestType: 'Incident',
+        template: 'Motorad NA Service Request',
         subjectLength: ticketSubject.length,
         urgency: ticketUrgency,
         category: ticketCategory,
