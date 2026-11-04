@@ -86,6 +86,40 @@ function resolveCategory(category) {
   return normalized.replace(/,\s+/g, ',') || 'General';
 }
 
+// Look the requester up in ServiceDesk by email so the ticket can reference the
+// record by id. Returns null when the lookup finds nothing or fails; callers
+// then fall back to sending the email address as before.
+async function findRequesterByEmail(token, email) {
+  try {
+    const params = new URLSearchParams({
+      input_data: JSON.stringify({
+        list_info: {
+          row_count: 1,
+          search_criteria: { field: 'email_id', condition: 'is', value: email }
+        }
+      })
+    });
+    const response = await axios.get(
+      `${SDP_BASE}/app/${PORTAL}/api/v3/requesters?${params.toString()}`,
+      {
+        headers: {
+          Authorization: `Zoho-oauthtoken ${token}`,
+          Accept: 'application/vnd.manageengine.sdp.v3+json'
+        }
+      }
+    );
+    const match = response.data?.requesters?.[0];
+    console.log('Requester lookup', { found: Boolean(match), hasId: Boolean(match?.id) });
+    return match?.id ? { id: match.id } : null;
+  } catch (error) {
+    const detail = error.response?.data
+      ? JSON.stringify(error.response.data)
+      : error instanceof Error ? error.message : 'unknown error';
+    console.error('Requester lookup failed:', error.response?.status || '', detail);
+    return null;
+  }
+}
+
 async function getAccessToken() {
   const required = ['SDP_CLIENT_ID', 'SDP_CLIENT_SECRET', 'SDP_REFRESH_TOKEN'];
   const missing = required.filter((name) => !process.env[name]);
@@ -496,11 +530,13 @@ app.post('/api/submit', (req, res) => {
         `<b>Submitted By:</b> ${escapeHtml(requesterEmail)}<br><br>` +
         `${safeDescription}`;
 
+      const requesterRef = (await findRequesterByEmail(token, requesterEmail)) || { email_id: requesterEmail };
+
       const requestPayload = {
         request: {
           subject: ticketSubject,
           description: fullDescription,
-          requester: { email_id: requesterEmail },
+          requester: requesterRef,
           urgency: { name: ticketUrgency },
           category: { name: ticketCategory },
           site: { name: ticketSite },
