@@ -5,7 +5,8 @@ body::before { content: "Trusted to Deliver Better"; display: block; background:
 h1, h2, .ticket-num, .success-box h2 { font-family: 'Exo 2', 'Rubik', sans-serif; font-style: italic; font-weight: 700; }
 
 .header { position: relative; background: #fff !important; color: var(--ink) !important; border-bottom: 1px solid #e5e7eb; border-top: 4px solid var(--red); box-shadow: none !important; padding: 22px 20px; }
-.header h1 { color: var(--red); font-size: 24px; }
+.brand-logo { display: block; height: 34px; width: auto; margin: 0 auto 10px; }
+.header h1 { color: var(--ink); font-size: 20px; }
 .header p, .header .muted { color: #4b5563 !important; opacity: 1; }
 .header a.back, .back { color: var(--red) !important; font-weight: 500; }
 .admin-link { border-color: var(--red) !important; color: var(--red) !important; }
