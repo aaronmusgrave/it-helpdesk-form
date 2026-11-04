@@ -1,0 +1,40 @@
+/* MotoRad brand theme, loaded after each page's inline styles. */
+:root { --red: #e4152b; --red-dark: #c40f23; --red-tint: #fef2f2; --red-soft: #fecaca; --ink: #2b2b2b; --bar: #4a4a4a; }
+body { font-family: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f4f5; color: var(--ink); }
+body::before { content: "Trusted to Deliver Better"; display: block; background: var(--bar); color: #fff; font: italic 600 12px 'Exo 2', sans-serif; padding: 12px 20px; }
+h1, h2, .ticket-num, .success-box h2 { font-family: 'Exo 2', 'Rubik', sans-serif; font-style: italic; font-weight: 700; }
+
+.header { position: relative; background: #fff !important; color: var(--ink) !important; border-bottom: 1px solid #e5e7eb; border-top: 4px solid var(--red); box-shadow: none !important; padding: 22px 20px; }
+.header h1 { color: var(--red); font-size: 24px; }
+.header p, .header .muted { color: #4b5563 !important; opacity: 1; }
+.header a.back, .back { color: var(--red) !important; font-weight: 500; }
+.admin-link { border-color: var(--red) !important; color: var(--red) !important; }
+.admin-link:hover { background: var(--red-tint) !important; }
+
+.card h2 { color: var(--ink); border-bottom-color: #f1f1f2; }
+.card, .container > section, .panel { border-radius: 12px; }
+
+.progress-bar { background: #e5e7eb; }
+.progress-fill { background: var(--red) !important; }
+.step-label { color: #4b5563; }
+
+input:focus, textarea:focus, select:focus, button:focus-visible, .btn:focus-visible { border-color: var(--red) !important; box-shadow: 0 0 0 4px rgba(228,21,43,0.15) !important; }
+
+.btn, .primary, button.primary { border-radius: 99px; font-weight: 600; }
+.btn-primary, .primary { background: var(--red) !important; color: #fff !important; box-shadow: 0 2px 8px rgba(228,21,43,0.3); }
+.btn-primary:hover, .primary:hover { background: var(--red-dark) !important; }
+.btn-primary:disabled, .primary:disabled { background: var(--red-soft) !important; box-shadow: none; }
+.btn-secondary { background: #fff; color: var(--ink); border: 1px solid #d1d5db; }
+.btn-secondary:hover { background: #f4f4f5; }
+
+.type-btn.selected, .check-btn.selected, .radio-btn.selected { border-color: var(--red); background: var(--red-tint); color: var(--red); box-shadow: 0 0 0 3px rgba(228,21,43,0.12); }
+.type-btn.selected::after { background: var(--red); }
+.type-btn:not(.selected):hover, .urgency-btn:not(.selected):hover, .check-btn:hover:not(.selected), .radio-btn:hover:not(.selected), .photo-area:hover { border-color: var(--red-soft); background: var(--red-tint); }
+.type-btn .d { color: #6b7280; }
+.type-btn.selected .d { color: #7f1d1d; }
+
+.website-issue-link:hover { color: var(--red); }
+.review-section h4, .ticket-num { color: var(--red); }
+.info-banner { background: var(--red-tint) !important; border-color: var(--red-soft) !important; color: #7f1d1d !important; }
+.req { color: var(--red); }
+button, input, select, textarea { font-family: inherit; }
