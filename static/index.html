@@ -142,7 +142,7 @@
     </div>
     <div class="field">
       <label>MotoRad Site <span class="req" title="Required">*</span></label>
-      <select id="site">
+      <select id="site" onchange="updateSiteFields()">
         <option value="">— Select your site —</option>
         <option>Motorad Atlanta</option>
         <option>Motorad Empire</option>
@@ -156,7 +156,7 @@
       </select>
       <div class="error-msg" id="err-site">Please select your site.</div>
     </div>
-    <div class="field">
+    <div class="field" id="officeTypeField">
       <label>Office / Plant <span class="req" title="Required">*</span></label>
       <select id="officeType" onchange="updateDepartments()">
         <option value="">— Select one —</option>
@@ -165,7 +165,7 @@
       </select>
       <div class="error-msg" id="err-officetype">Please select Office or Plant.</div>
     </div>
-    <div class="field">
+    <div class="field" id="departmentField">
       <label>USA Department <span class="req" title="Required">*</span></label>
       <select id="department">
         <option value="">— Select Office/Plant first —</option>
@@ -300,6 +300,22 @@
     selectedTicketType = val;
   }
 
+  // Israel and Germany have no Office/Plant split or USA departments.
+  function isIntlSite() {
+    return TECHNICIAN_SITES.has(document.getElementById("site").value);
+  }
+
+  function updateSiteFields() {
+    var intl = isIntlSite();
+    document.getElementById("officeTypeField").classList.toggle("hidden", intl);
+    document.getElementById("departmentField").classList.toggle("hidden", intl);
+    if (intl) {
+      document.getElementById("officeType").value = "";
+      updateDepartments();
+      ["err-officetype", "err-dept"].forEach(function(id) { document.getElementById(id).classList.remove("show"); });
+    }
+  }
+
   function updateDepartments() {
     var officeType = document.getElementById("officeType").value;
     var deptSelect = document.getElementById("department");
@@ -323,7 +339,7 @@
     if (selectedTicketType === "IT") {
       catField.classList.remove("hidden");
       catSelect.innerHTML = '<option value="">— Select a category —</option>';
-      var list = officeType === "Plant" ? CAT_PLANT : officeType === "Office/Remote" ? CAT_OFFICE : [];
+      var list = officeType === "Plant" ? CAT_PLANT : (officeType === "Office/Remote" || isIntlSite()) ? CAT_OFFICE : [];
       list.forEach(function(c) {
         var opt = document.createElement("option");
         opt.value = c; opt.textContent = c;
@@ -421,8 +437,10 @@
       var dept  = document.getElementById("department");
       if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) { hide("err-email", email); } else { show("err-email", email); }
       if (site.value)  { hide("err-site", site); }        else { show("err-site", site); }
-      if (otype.value) { hide("err-officetype", otype); } else { show("err-officetype", otype); }
-      if (dept.value)  { hide("err-dept", dept); }        else { show("err-dept", dept); }
+      if (!isIntlSite()) {
+        if (otype.value) { hide("err-officetype", otype); } else { show("err-officetype", otype); }
+        if (dept.value)  { hide("err-dept", dept); }        else { show("err-dept", dept); }
+      }
     }
     if (n === 3) {
       if (selectedTicketType === "IT") {
@@ -473,10 +491,13 @@
       ["📋 Ticket Type",  selectedTicketType],
       ["📧 Email",        document.getElementById("userEmail").value],
       ["📍 Site",         document.getElementById("site").value],
-      ["🏢 Office/Plant", document.getElementById("officeType").value],
-      ["👥 Department",   document.getElementById("department").value],
       ["⚡ Urgency",      selectedUrgency],
     ];
+    if (!isIntlSite()) {
+      rows.splice(3, 0,
+        ["🏢 Office/Plant", document.getElementById("officeType").value],
+        ["👥 Department",   document.getElementById("department").value]);
+    }
     if (selectedTicketType === "IT") rows.push(["🔧 Category", cat]);
     var technician = document.getElementById("technician").value;
     if (technician) rows.push(["🧑‍💻 Technician", technician]);
@@ -504,13 +525,13 @@
     var fullDescription = [
       "Ticket Type: " + selectedTicketType,
       "Site: " + site,
-      "Office/Plant: " + officeType,
-      "Department: " + dept,
+      isIntlSite() ? null : "Office/Plant: " + officeType,
+      isIntlSite() ? null : "Department: " + dept,
       "Urgency: " + selectedUrgency,
       "",
       "Issue Description:",
       description
-    ].join("\n");
+    ].filter(function(l) { return l !== null; }).join("\n");
 
     try {
       var formData = new FormData();
@@ -553,6 +574,7 @@
     selectedTicketType = "";
     photoFiles = [];
     document.getElementById("photoPreview").innerHTML = "";
+    updateSiteFields();
     document.getElementById("stepSuccess").classList.add("hidden");
     goStep(1);
   }
