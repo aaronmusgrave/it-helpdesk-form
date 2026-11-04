@@ -101,16 +101,27 @@
     .error-msg.show::before { content: "\26A0  "; }
     @media (max-width: 480px) { .type-grid { grid-template-columns: 1fr; } .type-btn { flex-direction: row; justify-content: flex-start; text-align: left; gap: 12px; padding: 14px; flex-wrap: wrap; } .type-btn .d { flex-basis: 100%; padding-left: 40px; margin-top: -10px; } }
   </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/brand.css" />
 </head>
 <body>
 
-<div class="header">
+<div class="header bar">
+  <img class="brand-logo" src="/motorad-logo.png" alt="MotoRad" />
+  <div class="bar-title"><small>MOTORAD // SERVICE DESK</small><h1>IT Help Desk</h1></div>
   <a class="admin-link" href="/admin.html">Admin</a>
-  <h1>🛠️ Help Desk</h1>
-  <p>MotoRad — Submit a Support Ticket</p>
 </div>
 
-<div class="container">
+<div class="container layout">
+  <aside class="hero">
+    <div class="hero-main">
+      <h2>Keep every system moving.</h2>
+      <p>Tell us what is slowing you down. Our support team will route your request to the right technician and keep you updated.</p>
+    </div>
+    <div class="hero-tip">Tip: Include the asset number, location, and a screenshot when possible.</div>
+  </aside>
+  <div class="panel-col">
   <a class="website-issue-link" href="/website-issue.html">Having a problem with the website? Report a website issue →</a>
   <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:25%"></div></div>
   <div class="step-label" id="stepLabel">Step 1 of 4 · Type</div>
@@ -121,9 +132,9 @@
     <div class="field">
       <label>What type of ticket are you submitting? <span class="req" title="Required">*</span></label>
       <div class="type-grid">
-        <button class="type-btn" onclick="selectTicketType(this,'IT')"><span class="ico">💻</span><span class="t">IT</span><span class="d">Laptops, access, software</span></button>
-        <button class="type-btn" onclick="selectTicketType(this,'Maintenance')"><span class="ico">🔧</span><span class="t">Maintenance</span><span class="d">Facilities and equipment</span></button>
-        <button class="type-btn" onclick="selectTicketType(this,'Business Intelligence')"><span class="ico">📊</span><span class="t">Business Intelligence</span><span class="d">Reports and data</span></button>
+        <button class="type-btn" onclick="selectTicketType(this,'IT')"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/></svg><span class="t">IT</span><span class="d">Laptops, access, software</span></button>
+        <button class="type-btn" onclick="selectTicketType(this,'Maintenance')"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.1L3 17.7 6.3 21l6.3-6.3a4 4 0 0 0 5.1-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span class="t">Maintenance</span><span class="d">Facilities and equipment</span></button>
+        <button class="type-btn" onclick="selectTicketType(this,'Business Intelligence')"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="t">Business Intelligence</span><span class="d">Reports and data</span></button>
       </div>
       <div class="error-msg" id="err-tickettype">Please select a ticket type.</div>
     </div>
@@ -252,6 +263,7 @@
       <p style="margin-top:10px">A confirmation will be sent to<br><strong id="confirmEmail"></strong></p>
       <button class="btn btn-primary" style="margin-top:24px; flex:none; width:100%" onclick="resetForm()">Submit Another Ticket</button>
     </div>
+  </div>
   </div>
 </div>
 
