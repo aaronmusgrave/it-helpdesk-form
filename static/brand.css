@@ -1,7 +1,6 @@
 /* MotoRad brand theme, loaded after each page's inline styles. */
 :root { --red: #e4152b; --red-dark: #c40f23; --red-tint: #fef2f2; --red-soft: #fecaca; --ink: #2b2b2b; --bar: #4a4a4a; }
 body { font-family: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f4f5; color: var(--ink); }
-body::before { content: "Trusted to Deliver Better"; display: block; background: var(--bar); color: #fff; font: italic 600 12px 'Exo 2', sans-serif; padding: 12px 20px; }
 h1, h2, .ticket-num, .success-box h2 { font-family: 'Exo 2', 'Rubik', sans-serif; font-style: italic; font-weight: 700; }
 
 .header { position: relative; background: #fff !important; color: var(--ink) !important; border-bottom: 1px solid #e5e7eb; border-top: 4px solid var(--red); box-shadow: none !important; padding: 22px 20px; }
