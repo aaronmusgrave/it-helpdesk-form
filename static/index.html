@@ -113,21 +113,22 @@
   <a class="admin-link" href="/admin.html">Admin</a>
 </div>
 
-<div class="container layout">
-  <aside class="hero">
-    <div class="hero-main">
-      <h2>Keep every system moving.</h2>
-      <p>Tell us what is slowing you down. Our support team will route your request to the right technician and keep you updated.</p>
-    </div>
-    <div class="hero-tip">Tip: Include the asset number, location, and a screenshot when possible.</div>
-  </aside>
+<div class="container layout" style="grid-template-columns:minmax(0,680px);justify-content:center">
   <div class="panel-col">
-  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:25%"></div></div>
-  <div class="step-label" id="stepLabel">Step 1 of 4 · Type</div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:50%"></div></div>
+  <div class="step-label" id="stepLabel">Step 1 of 2 · Contact</div>
 
   <!-- STEP 1: Ticket Type -->
   <div class="card" id="step1">
-    <h2>📋 Ticket Type</h2>
+    <h2>📋 Ticket &amp; Contact</h2>
+    <div class="field">
+      <label>Where are you located? <span class="req" title="Required">*</span></label>
+      <div class="type-grid" style="grid-template-columns:1fr 1fr">
+        <button type="button" class="type-btn region-btn" onclick="selectRegion(this,'EMEA')"><span class="t">🌍 EMEA</span><span class="d">Israel, Germany</span></button>
+        <button type="button" class="type-btn region-btn" onclick="selectRegion(this,'USA/Mexico')"><span class="t">🌎 USA/Mexico</span><span class="d">USA, Mexico</span></button>
+      </div>
+      <div class="error-msg" id="err-region">Please select your region.</div>
+    </div>
     <div class="field">
       <label>What type of ticket are you submitting? <span class="req" title="Required">*</span></label>
       <div class="type-grid">
@@ -138,14 +139,6 @@
       </div>
       <div class="error-msg" id="err-tickettype">Please select a ticket type.</div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="goStep(2)">Next →</button>
-    </div>
-  </div>
-
-  <!-- STEP 2: Contact Info -->
-  <div class="card hidden" id="step2">
-    <h2>👤 Contact Information</h2>
     <div class="field">
       <label>Email Address <span class="req" title="Required">*</span></label>
       <input type="email" id="userEmail" placeholder="you@motorad.com" />
@@ -167,31 +160,21 @@
       </select>
       <div class="error-msg" id="err-site">Please select your site.</div>
     </div>
-    <div class="field" id="officeTypeField">
-      <label>Office / Plant <span class="req" title="Required">*</span></label>
-      <select id="officeType" onchange="updateDepartments()">
-        <option value="">— Select one —</option>
-        <option>Office/Remote</option>
-        <option>Plant</option>
-      </select>
-      <div class="error-msg" id="err-officetype">Please select Office or Plant.</div>
-    </div>
     <div class="field" id="departmentField">
       <label>USA Department <span class="req" title="Required">*</span></label>
       <select id="department">
-        <option value="">— Select Office/Plant first —</option>
+        <option value="">— Select your department —</option>
       </select>
       <div class="error-msg" id="err-dept">Please select your department.</div>
     </div>
     <div class="btn-row">
-      <button class="btn btn-secondary" onclick="goStep(1)">← Back</button>
-      <button class="btn btn-primary"   onclick="goStep(3)">Next →</button>
+      <button class="btn btn-primary" onclick="goStep(2)">Next →</button>
     </div>
   </div>
 
-  <!-- STEP 3: Ticket Details -->
-  <div class="card hidden" id="step3">
-    <h2>🔧 Ticket Details</h2>
+  <!-- STEP 2: Details + Describe -->
+  <div class="card hidden" id="step2">
+    <h2>🔧 Details &amp; Submit</h2>
     <div class="field">
       <label>Ticket Urgency <span class="req" title="Required">*</span></label>
       <div class="urgency-grid">
@@ -203,20 +186,11 @@
     </div>
     <div class="field hidden" id="categoryField">
       <label>Ticket Category <span class="req" title="Required">*</span></label>
-      <select id="category">
+      <select id="category" onchange="loadTechniciansForSite()">
         <option value="">— Select a category —</option>
       </select>
       <div class="error-msg" id="err-category">Please select a category.</div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-secondary" onclick="goStep(2)">← Back</button>
-      <button class="btn btn-primary"   onclick="goStep(4)">Next →</button>
-    </div>
-  </div>
-
-  <!-- STEP 4: Subject + Description + Photo -->
-  <div class="card hidden" id="step4">
-    <h2>📝 Describe &amp; Submit</h2>
     <div class="field">
       <label>Ticket Subject <span class="req">*</span> <span class="sublabel">One sentence summary</span></label>
       <input type="text" id="subject" placeholder="e.g. Scanner won't connect to WiFi" />
@@ -248,7 +222,7 @@
       <div class="review-box" id="reviewBox"></div>
     </div>
     <div class="btn-row">
-      <button class="btn btn-secondary" onclick="goStep(3)">← Back</button>
+      <button class="btn btn-secondary" onclick="goStep(1)">← Back</button>
       <button class="btn btn-primary" id="submitBtn" onclick="submitTicket()">✅ Submit Ticket</button>
     </div>
   </div>
@@ -272,6 +246,11 @@
 
   let selectedUrgency  = "Normal";
   let selectedTicketType = "";
+  let selectedRegion = "";
+  const REGION_SITES = {
+    "EMEA": ["Motorad Israel", "Motorad Germany"],
+    "USA/Mexico": ["Motorad Atlanta", "Motorad Empire", "Motorad MCDC", "Motorad Mexico", "Motorad Plant", "Motorad Red Roof", "Motorad Remote"]
+  };
   let photoFiles = [];
   const TECHNICIAN_SITES = new Set(["Motorad Israel", "Motorad Germany"]);
 
@@ -306,52 +285,65 @@
     "IT - Server Support","IT - Software Installation / Support"
   ];
 
+  function selectRegion(el, val) {
+    document.querySelectorAll(".region-btn").forEach(function(b) { b.classList.remove("selected"); });
+    el.classList.add("selected");
+    selectedRegion = val;
+    var siteSelect = document.getElementById("site");
+    siteSelect.innerHTML = '<option value="">— Select your site —</option>';
+    REGION_SITES[val].forEach(function(name) {
+      var opt = document.createElement("option");
+      opt.textContent = name;
+      siteSelect.appendChild(opt);
+    });
+    siteSelect.value = "";
+    updateSiteFields();
+    document.getElementById("err-region").classList.remove("show");
+  }
+
   function selectTicketType(el, val) {
-    document.querySelectorAll(".type-btn").forEach(function(b) { b.classList.remove("selected"); });
+    document.querySelectorAll(".type-btn:not(.region-btn)").forEach(function(b) { b.classList.remove("selected"); });
     el.classList.add("selected");
     selectedTicketType = val;
   }
 
-  // Israel and Germany have no Office/Plant split or USA departments.
+  // Israel and Germany have no USA departments.
   function isIntlSite() {
-    return TECHNICIAN_SITES.has(document.getElementById("site").value);
+    return selectedRegion === "EMEA" || TECHNICIAN_SITES.has(document.getElementById("site").value);
   }
 
   function updateSiteFields() {
     var intl = isIntlSite();
-    document.getElementById("officeTypeField").classList.toggle("hidden", intl);
     document.getElementById("departmentField").classList.toggle("hidden", intl);
     if (intl) {
-      document.getElementById("officeType").value = "";
-      updateDepartments();
-      ["err-officetype", "err-dept"].forEach(function(id) { document.getElementById(id).classList.remove("show"); });
+      updateCategories();
+      ["err-dept"].forEach(function(id) { document.getElementById(id).classList.remove("show"); });
     }
   }
 
+  function uniqueSorted(a, b) {
+    return a.concat(b).filter(function(v, i, arr) { return arr.indexOf(v) === i; }).sort();
+  }
+
   function updateDepartments() {
-    var officeType = document.getElementById("officeType").value;
     var deptSelect = document.getElementById("department");
     deptSelect.innerHTML = '<option value="">— Select your department —</option>';
-    var list = officeType === "Plant" ? DEPT_PLANT : officeType === "Office/Remote" ? DEPT_OFFICE : [];
-    list.forEach(function(d) {
+    uniqueSorted(DEPT_OFFICE, DEPT_PLANT).forEach(function(d) {
       var opt = document.createElement("option");
       opt.value = d; opt.textContent = d;
       deptSelect.appendChild(opt);
     });
-    // Reset department selection
     deptSelect.value = "";
-    updateCategories();
   }
 
   function updateCategories() {
-    var officeType = document.getElementById("officeType").value;
     var catSelect  = document.getElementById("category");
     var catField   = document.getElementById("categoryField");
 
     if (selectedTicketType === "IT") {
       catField.classList.remove("hidden");
       catSelect.innerHTML = '<option value="">— Select a category —</option>';
-      var list = officeType === "Plant" ? CAT_PLANT : (officeType === "Office/Remote" || isIntlSite()) ? CAT_OFFICE : [];
+      var list = uniqueSorted(CAT_OFFICE, CAT_PLANT);
       list.forEach(function(c) {
         var opt = document.createElement("option");
         opt.value = c; opt.textContent = c;
@@ -417,20 +409,20 @@
 
   function goStep(n) {
     if (n > 1 && !validateStep(n - 1)) return;
-    if (n === 3) updateCategories();
-    if (n === 4) {
+    if (n === 2) {
+      updateCategories();
       buildReview();
       loadTechniciansForSite();
     }
-    for (var i = 1; i <= 4; i++) {
+    for (var i = 1; i <= 2; i++) {
       var el = document.getElementById("step" + i);
       if (el) el.classList.add("hidden");
     }
     var target = document.getElementById("step" + n);
     if (target) target.classList.remove("hidden");
-    var pct = { 1: 25, 2: 50, 3: 75, 4: 100 };
+    var pct = { 1: 50, 2: 100 };
     document.getElementById("progressFill").style.width = pct[n] + "%";
-    document.getElementById("stepLabel").textContent = "Step " + n + " of 4 · " + ["", "Type", "Contact", "Details", "Describe"][n];
+    document.getElementById("stepLabel").textContent = "Step " + n + " of 2 · " + ["", "Contact", "Details"][n];
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -440,27 +432,26 @@
     function hide(id, el) { document.getElementById(id).classList.remove("show"); if (el) el.classList.remove("err"); }
 
     if (n === 1) {
+      if (!selectedRegion) show("err-region", null); else hide("err-region", null);
       if (selectedTicketType) { hide("err-tickettype", null); } else { show("err-tickettype", null); }
     }
-    if (n === 2) {
+    if (n === 1) {
       var email = document.getElementById("userEmail");
       var site  = document.getElementById("site");
-      var otype = document.getElementById("officeType");
       var dept  = document.getElementById("department");
       if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) { hide("err-email", email); } else { show("err-email", email); }
       if (site.value)  { hide("err-site", site); }        else { show("err-site", site); }
       if (!isIntlSite()) {
-        if (otype.value) { hide("err-officetype", otype); } else { show("err-officetype", otype); }
         if (dept.value)  { hide("err-dept", dept); }        else { show("err-dept", dept); }
       }
     }
-    if (n === 3) {
+    if (n === 2) {
       if (selectedTicketType === "IT") {
         var cat = document.getElementById("category");
         if (cat.value) { hide("err-category", cat); } else { show("err-category", cat); }
       }
     }
-    if (n === 4) {
+    if (n === 2) {
       var sub = document.getElementById("subject");
       if (sub.value.trim()) { hide("err-subject", sub); } else { show("err-subject", sub); }
       var techField = document.getElementById("technicianField");
@@ -500,15 +491,14 @@
   function buildReview() {
     var cat = selectedTicketType === "IT" ? document.getElementById("category").value : "N/A";
     var rows = [
+      ["🌐 Region",       selectedRegion],
       ["📋 Ticket Type",  selectedTicketType],
       ["📧 Email",        document.getElementById("userEmail").value],
       ["📍 Site",         document.getElementById("site").value],
       ["⚡ Urgency",      selectedUrgency],
     ];
     if (!isIntlSite()) {
-      rows.splice(3, 0,
-        ["🏢 Office/Plant", document.getElementById("officeType").value],
-        ["👥 Department",   document.getElementById("department").value]);
+      rows.splice(4, 0, ["👥 Department", document.getElementById("department").value]);
     }
     if (selectedTicketType === "IT") rows.push(["🔧 Category", cat]);
     var technician = document.getElementById("technician").value;
@@ -520,14 +510,13 @@
   }
 
   async function submitTicket() {
-    if (!validateStep(4)) return;
+    if (!validateStep(2)) return;
     var btn = document.getElementById("submitBtn");
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Submitting...';
 
     var email       = document.getElementById("userEmail").value.trim();
     var site        = document.getElementById("site").value;
-    var officeType  = document.getElementById("officeType").value;
     var dept        = document.getElementById("department").value;
     var category    = selectedTicketType === "IT" ? document.getElementById("category").value : selectedTicketType;
     var technician  = document.getElementById("technician").value;
@@ -537,7 +526,6 @@
     var fullDescription = [
       "Ticket Type: " + selectedTicketType,
       "Site: " + site,
-      isIntlSite() ? null : "Office/Plant: " + officeType,
       isIntlSite() ? null : "Department: " + dept,
       "Urgency: " + selectedUrgency,
       "",
@@ -561,7 +549,7 @@
 
       if (!resp.ok || data.error) throw new Error(data.error || "Submission failed");
 
-      document.getElementById("step4").classList.add("hidden");
+      document.getElementById("step2").classList.add("hidden");
       document.getElementById("stepSuccess").classList.remove("hidden");
       document.getElementById("ticketNumber").textContent = "#" + (data.display_id || "—");
       document.getElementById("confirmEmail").textContent = email;
@@ -576,14 +564,25 @@
     }
   }
 
+  ["input", "change", "click"].forEach(function(evt) {
+    document.addEventListener(evt, function() {
+      if (!document.getElementById("step2").classList.contains("hidden")) buildReview();
+    });
+  });
+
+  updateDepartments();
+
   function resetForm() {
     document.querySelectorAll("input[type=text], input[type=email], textarea").forEach(function(el) { el.value = ""; });
     document.querySelectorAll("select").forEach(function(el) { el.value = ""; });
     document.querySelectorAll(".urgency-btn").forEach(function(b) { b.classList.remove("selected"); });
     document.querySelector(".urgency-btn.normal").classList.add("selected");
-    document.querySelectorAll(".type-btn").forEach(function(b) { b.classList.remove("selected"); });
+    document.querySelectorAll(".type-btn:not(.region-btn)").forEach(function(b) { b.classList.remove("selected"); });
     selectedUrgency   = "Normal";
     selectedTicketType = "";
+    selectedRegion = "";
+    document.querySelectorAll(".region-btn").forEach(function(b) { b.classList.remove("selected"); });
+    document.getElementById("site").innerHTML = '<option value="">— Select your site —</option>';
     photoFiles = [];
     document.getElementById("photoPreview").innerHTML = "";
     updateSiteFields();
