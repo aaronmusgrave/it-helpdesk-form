@@ -343,7 +343,7 @@
 
   // Israel and Germany have no Office/Plant split or USA departments.
   function isIntlSite() {
-    return TECHNICIAN_SITES.has(document.getElementById("site").value);
+    return selectedRegion === "EMEA" || TECHNICIAN_SITES.has(document.getElementById("site").value);
   }
 
   function updateSiteFields() {
