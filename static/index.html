@@ -167,19 +167,10 @@
       </select>
       <div class="error-msg" id="err-site">Please select your site.</div>
     </div>
-    <div class="field" id="officeTypeField">
-      <label>Office / Plant <span class="req" title="Required">*</span></label>
-      <select id="officeType" onchange="updateDepartments()">
-        <option value="">— Select one —</option>
-        <option>Office/Remote</option>
-        <option>Plant</option>
-      </select>
-      <div class="error-msg" id="err-officetype">Please select Office or Plant.</div>
-    </div>
     <div class="field" id="departmentField">
       <label>USA Department <span class="req" title="Required">*</span></label>
       <select id="department">
-        <option value="">— Select Office/Plant first —</option>
+        <option value="">— Select your department —</option>
       </select>
       <div class="error-msg" id="err-dept">Please select your department.</div>
     </div>
@@ -323,46 +314,43 @@
     selectedTicketType = val;
   }
 
-  // Israel and Germany have no Office/Plant split or USA departments.
+  // Israel and Germany have no USA departments.
   function isIntlSite() {
     return selectedRegion === "EMEA" || TECHNICIAN_SITES.has(document.getElementById("site").value);
   }
 
   function updateSiteFields() {
     var intl = isIntlSite();
-    document.getElementById("officeTypeField").classList.toggle("hidden", intl);
     document.getElementById("departmentField").classList.toggle("hidden", intl);
     if (intl) {
-      document.getElementById("officeType").value = "";
-      updateDepartments();
-      ["err-officetype", "err-dept"].forEach(function(id) { document.getElementById(id).classList.remove("show"); });
+      updateCategories();
+      ["err-dept"].forEach(function(id) { document.getElementById(id).classList.remove("show"); });
     }
   }
 
+  function uniqueSorted(a, b) {
+    return a.concat(b).filter(function(v, i, arr) { return arr.indexOf(v) === i; }).sort();
+  }
+
   function updateDepartments() {
-    var officeType = document.getElementById("officeType").value;
     var deptSelect = document.getElementById("department");
     deptSelect.innerHTML = '<option value="">— Select your department —</option>';
-    var list = officeType === "Plant" ? DEPT_PLANT : officeType === "Office/Remote" ? DEPT_OFFICE : [];
-    list.forEach(function(d) {
+    uniqueSorted(DEPT_OFFICE, DEPT_PLANT).forEach(function(d) {
       var opt = document.createElement("option");
       opt.value = d; opt.textContent = d;
       deptSelect.appendChild(opt);
     });
-    // Reset department selection
     deptSelect.value = "";
-    updateCategories();
   }
 
   function updateCategories() {
-    var officeType = document.getElementById("officeType").value;
     var catSelect  = document.getElementById("category");
     var catField   = document.getElementById("categoryField");
 
     if (selectedTicketType === "IT") {
       catField.classList.remove("hidden");
       catSelect.innerHTML = '<option value="">— Select a category —</option>';
-      var list = officeType === "Plant" ? CAT_PLANT : (officeType === "Office/Remote" || isIntlSite()) ? CAT_OFFICE : [];
+      var list = uniqueSorted(CAT_OFFICE, CAT_PLANT);
       list.forEach(function(c) {
         var opt = document.createElement("option");
         opt.value = c; opt.textContent = c;
@@ -457,12 +445,10 @@
     if (n === 1) {
       var email = document.getElementById("userEmail");
       var site  = document.getElementById("site");
-      var otype = document.getElementById("officeType");
       var dept  = document.getElementById("department");
       if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) { hide("err-email", email); } else { show("err-email", email); }
       if (site.value)  { hide("err-site", site); }        else { show("err-site", site); }
       if (!isIntlSite()) {
-        if (otype.value) { hide("err-officetype", otype); } else { show("err-officetype", otype); }
         if (dept.value)  { hide("err-dept", dept); }        else { show("err-dept", dept); }
       }
     }
@@ -519,9 +505,7 @@
       ["⚡ Urgency",      selectedUrgency],
     ];
     if (!isIntlSite()) {
-      rows.splice(4, 0,
-        ["🏢 Office/Plant", document.getElementById("officeType").value],
-        ["👥 Department",   document.getElementById("department").value]);
+      rows.splice(4, 0, ["👥 Department", document.getElementById("department").value]);
     }
     if (selectedTicketType === "IT") rows.push(["🔧 Category", cat]);
     var technician = document.getElementById("technician").value;
@@ -540,7 +524,6 @@
 
     var email       = document.getElementById("userEmail").value.trim();
     var site        = document.getElementById("site").value;
-    var officeType  = document.getElementById("officeType").value;
     var dept        = document.getElementById("department").value;
     var category    = selectedTicketType === "IT" ? document.getElementById("category").value : selectedTicketType;
     var technician  = document.getElementById("technician").value;
@@ -550,7 +533,6 @@
     var fullDescription = [
       "Ticket Type: " + selectedTicketType,
       "Site: " + site,
-      isIntlSite() ? null : "Office/Plant: " + officeType,
       isIntlSite() ? null : "Department: " + dept,
       "Urgency: " + selectedUrgency,
       "",
@@ -594,6 +576,8 @@
       if (!document.getElementById("step2").classList.contains("hidden")) buildReview();
     });
   });
+
+  updateDepartments();
 
   function resetForm() {
     document.querySelectorAll("input[type=text], input[type=email], textarea").forEach(function(el) { el.value = ""; });
