@@ -129,6 +129,14 @@
   <div class="card" id="step1">
     <h2>📋 Ticket Type</h2>
     <div class="field">
+      <label>Where are you located? <span class="req" title="Required">*</span></label>
+      <div class="type-grid" style="grid-template-columns:1fr 1fr">
+        <button type="button" class="type-btn region-btn" onclick="selectRegion(this,'EMEA')"><span class="t">🌍 EMEA</span><span class="d">Israel, Germany</span></button>
+        <button type="button" class="type-btn region-btn" onclick="selectRegion(this,'USA/Mexico')"><span class="t">🌎 USA/Mexico</span><span class="d">USA, Mexico</span></button>
+      </div>
+      <div class="error-msg" id="err-region">Please select your region.</div>
+    </div>
+    <div class="field">
       <label>What type of ticket are you submitting? <span class="req" title="Required">*</span></label>
       <div class="type-grid">
         <button class="type-btn" onclick="selectTicketType(this,'IT')"><svg class="ico" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/></svg><span class="t">IT</span><span class="d">Laptops, access, software</span></button>
@@ -272,6 +280,11 @@
 
   let selectedUrgency  = "Normal";
   let selectedTicketType = "";
+  let selectedRegion = "";
+  const REGION_SITES = {
+    "EMEA": ["Motorad Israel", "Motorad Germany"],
+    "USA/Mexico": ["Motorad Atlanta", "Motorad Empire", "Motorad MCDC", "Motorad Mexico", "Motorad Plant", "Motorad Red Roof", "Motorad Remote"]
+  };
   let photoFiles = [];
   const TECHNICIAN_SITES = new Set(["Motorad Israel", "Motorad Germany"]);
 
@@ -306,8 +319,24 @@
     "IT - Server Support","IT - Software Installation / Support"
   ];
 
+  function selectRegion(el, val) {
+    document.querySelectorAll(".region-btn").forEach(function(b) { b.classList.remove("selected"); });
+    el.classList.add("selected");
+    selectedRegion = val;
+    var siteSelect = document.getElementById("site");
+    siteSelect.innerHTML = '<option value="">— Select your site —</option>';
+    REGION_SITES[val].forEach(function(name) {
+      var opt = document.createElement("option");
+      opt.textContent = name;
+      siteSelect.appendChild(opt);
+    });
+    siteSelect.value = "";
+    updateSiteFields();
+    document.getElementById("err-region").classList.remove("show");
+  }
+
   function selectTicketType(el, val) {
-    document.querySelectorAll(".type-btn").forEach(function(b) { b.classList.remove("selected"); });
+    document.querySelectorAll(".type-btn:not(.region-btn)").forEach(function(b) { b.classList.remove("selected"); });
     el.classList.add("selected");
     selectedTicketType = val;
   }
@@ -440,6 +469,7 @@
     function hide(id, el) { document.getElementById(id).classList.remove("show"); if (el) el.classList.remove("err"); }
 
     if (n === 1) {
+      if (!selectedRegion) show("err-region", null); else hide("err-region", null);
       if (selectedTicketType) { hide("err-tickettype", null); } else { show("err-tickettype", null); }
     }
     if (n === 2) {
@@ -500,13 +530,14 @@
   function buildReview() {
     var cat = selectedTicketType === "IT" ? document.getElementById("category").value : "N/A";
     var rows = [
+      ["🌐 Region",       selectedRegion],
       ["📋 Ticket Type",  selectedTicketType],
       ["📧 Email",        document.getElementById("userEmail").value],
       ["📍 Site",         document.getElementById("site").value],
       ["⚡ Urgency",      selectedUrgency],
     ];
     if (!isIntlSite()) {
-      rows.splice(3, 0,
+      rows.splice(4, 0,
         ["🏢 Office/Plant", document.getElementById("officeType").value],
         ["👥 Department",   document.getElementById("department").value]);
     }
@@ -581,9 +612,12 @@
     document.querySelectorAll("select").forEach(function(el) { el.value = ""; });
     document.querySelectorAll(".urgency-btn").forEach(function(b) { b.classList.remove("selected"); });
     document.querySelector(".urgency-btn.normal").classList.add("selected");
-    document.querySelectorAll(".type-btn").forEach(function(b) { b.classList.remove("selected"); });
+    document.querySelectorAll(".type-btn:not(.region-btn)").forEach(function(b) { b.classList.remove("selected"); });
     selectedUrgency   = "Normal";
     selectedTicketType = "";
+    selectedRegion = "";
+    document.querySelectorAll(".region-btn").forEach(function(b) { b.classList.remove("selected"); });
+    document.getElementById("site").innerHTML = '<option value="">— Select your site —</option>';
     photoFiles = [];
     document.getElementById("photoPreview").innerHTML = "";
     updateSiteFields();
